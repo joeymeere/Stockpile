@@ -18,3 +18,4 @@ Stockpile is currently undergoing closed beta and will be available to the publi
 
 # Why?
 
+Formerly Mobius Protocol, the Stockpile project was conceptualized during the Freedom Convoy. Our team believes in freedom of transaction, and seeing how the events unfolded for the convoy inspired us to take a different stance on the traditional crowdfunding model. We sought to right the wrongs of platforms GoFundMe that deliberately censor legitamite fundraisers for disagreements in a ToS sheet. The result, is the Stockpile project. 
