@@ -144,26 +144,26 @@ export const StockpileProvider = ({children}) => {
                     systemProgram: SystemProgram.programId,
                 }).rpc();
                 
-               const ix = await method.accounts({
-                     fundraiser: fundraiserPDA,
-                     beneficiary: anchorWallet.publicKey,
-                     rent: SYSVAR_RENT_PUBKEY,
-                     systemProgram: SystemProgram.programId,
-                }).instruction(); 
+            //   const ix = await method.accounts({
+            //         fundraiser: fundraiserPDA,
+            //         beneficiary: anchorWallet.publicKey,
+            //         rent: SYSVAR_RENT_PUBKEY,
+            //         systemProgram: SystemProgram.programId,
+            //    }).instruction(); 
 
-                console.log('Building transaction...');
-                const tx = new Transaction();
+            //    console.log('Building transaction...');
+            //    const tx = new Transaction();
 
-                tx.add(ix);
-                console.log('Adding methods...');
+            //    tx.add(ix);
+            //    console.log('Adding methods...');
 //
-                tx.recentBlockhash = (await connection.getLatestBlockhash());
-                console.log("Blockhash recieved: ", tx.recentBlockhash);
+             //   tx.recentBlockhash = (await connection.getLatestBlockhash());
+             //   console.log("Blockhash recieved: ", tx.recentBlockhash);
 
-                tx.feePayer = anchorWallet.publicKey;
-                tx.serialize();
+             //   tx.feePayer = anchorWallet.publicKey;
+             //   tx.serialize();
 
-                await connection.sendTransaction(tx, anchorWallet);
+             //   await connection.sendTransaction(tx, anchorWallet);
                 
                // if (additionalSigners?.length) {
                // tx.partialSign(...additionalSigners);
@@ -185,7 +185,7 @@ export const StockpileProvider = ({children}) => {
                  if (result?.value.err) {
                    return { err: 1 };
                 } else {
-                   return txHash;
+                   return method;
                }
 
 
