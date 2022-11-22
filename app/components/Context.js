@@ -144,43 +144,12 @@ export const StockpileProvider = ({children}) => {
                     systemProgram: SystemProgram.programId,
                 }).rpc();
                 
-            //   const ix = await method.accounts({
-            //         fundraiser: fundraiserPDA,
-            //         beneficiary: anchorWallet.publicKey,
-            //         rent: SYSVAR_RENT_PUBKEY,
-            //         systemProgram: SystemProgram.programId,
-            //    }).instruction(); 
-
-            //    console.log('Building transaction...');
-            //    const tx = new Transaction();
-
-            //    tx.add(ix);
-            //    console.log('Adding methods...');
-//
-             //   tx.recentBlockhash = (await connection.getLatestBlockhash());
-             //   console.log("Blockhash recieved: ", tx.recentBlockhash);
-
-             //   tx.feePayer = anchorWallet.publicKey;
-             //   tx.serialize();
-
-             //   await connection.sendTransaction(tx, anchorWallet);
-                
-               // if (additionalSigners?.length) {
-               // tx.partialSign(...additionalSigners);
-              //  }
-
-            //    await anchorWallet.signTransaction(tx);
-
-           //        console.log("TX: ", rawTx);
-
-            //    const txHash = rawTx
-           //     await connection.sendRawTransaction(txHash);
                 console.log('Sending...');
            //    const account = await program.account.fundraiser.fetch(fundraiserPDA);
            //     console.log("Added a new Fundraiser", account.fundraiser[0]);
           //      console.log(tx);
 
-               const result = await connection.confirmTransaction(tx);
+               const result = await connection.confirmTransaction(method);
 //
                  if (result?.value.err) {
                    return { err: 1 };
