@@ -6,6 +6,7 @@ import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from '@sola
 import { IDL } from '../utils/stockpile'
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
+//import * as borsh from 'borsh';
 import * as borsh from '@project-serum/borsh';
 import toast from "react-hot-toast";
 
@@ -23,30 +24,52 @@ export const useStockpile = () => {
 }
 
 export class Fundraiser {
- 
-         static borshSchema = borsh.struct([
-                     borsh.publicKey('beneficiary'),
-                     borsh.str('name'),
-                     borsh.str('description'),
-                     borsh.str('imageLink'),
-                     borsh.str('contactLink'),
-                     borsh.str('websiteLink'),
-                     borsh.u8('raised'),
-                 ])
- 
-         static deserialize(buffer) {
-                 if (!buffer) {
-                     return null
-                 }
-                 try {
-                     const { beneficiary, name, description, imageLink, contactLink, websiteLink, raised } = this.borshSchema.decode(buffer)
-                     console.log(beneficiary.toBase58(), raised);
-                     return new Fundraiser(beneficiary, name, description, imageLink, contactLink, websiteLink, raised)
-                 } catch(error) {
-                     console.log('Deserialization error:', error)
-                     return null
-                 }
-          } 
+
+    constructor(beneficiary, name, description, imageLink, contactLink, websiteLink) {
+        this.beneficiary = beneficiary;
+        this.name = name;
+        this.description = description;
+        this.imageLink = imageLink;
+        this.contactLink = contactLink;
+        this.websiteLink = websiteLink;
+    }
+
+    static borshSchema = borsh.struct([
+        borsh.publicKey('beneficiary'),
+        borsh.str('name'),
+        borsh.str('description'),
+        borsh.str('imageLink'),
+        borsh.str('contactLink'),
+        borsh.str('websiteLink'),
+        borsh.u8('raised'),
+    ])
+/*
+        static borshSchema = new Map([
+            [Fundraiser,
+            {
+                kind: 'struct',
+                fields: [
+                    ['beneficiary', [32]],
+                    ['name', 'string'],
+                    ['description', 'string'],
+                    ['imageLink', 'string'],
+                    ['contactLink', 'string'],
+                    ['websiteLink', 'string'],
+                    ['raised', 'u8']]
+            }]]);
+            */
+           static deserialize(buffer) {
+            if (!buffer) {
+                return null
+            }
+            try {
+                const { beneficiary, name, description, imageLink, contactLink, websiteLink, raised } = this.borshSchema.decode(buffer)
+                return new Fundraiser(beneficiary, name, description, imageLink, contactLink, websiteLink, raised)
+            } catch(error) {
+                console.log('Deserialization error:', error)
+                return null
+            }
+        } 
      }
 
 export const StockpileProvider = ({children}) => {
@@ -110,21 +133,19 @@ export const StockpileProvider = ({children}) => {
     };
 
     const getAllFundraisers = async () => {
-            try {
-                const fundraisersData = await program.account.fundraiser.all();
 
-                fundraisersData.sort(
-                    (a,b)=> b.account.raised.toNumber() - a.account.raised.toNumber(),
-                );
-
-                console.log(fundraisersData);
-
-                return fundraisersData;
-
-            } catch(error) {
-                console.log(error);
-            }
-    }
+            connection.getProgramAccounts(new web3.PublicKey(PROGRAM_ID)).then(async (accounts) => {
+                const fundraisers = accounts.reduce((accum, { pubkey, account }) => {
+                const fundraiser = borsh.deserializeUnchecked(Fundraiser.borshSchema, Fundraiser, account.data)
+                console.log(fundraiser);
+                    if (!fundraiser) {
+                        return accum
+                    }
+                return [...accum, fundraiser, fundraisers]
+        },[])
+      }
+    )}
+    
 
     const createFundraiser = async (name, description, websiteLink, contactLink, imageLink) => {
         console.log("CREATING FUNDRAISER...")

@@ -3,10 +3,11 @@ import DashboardLayout from "components/DashboardLayout";
 import CardSection from '../components/CardSection'
 import Link from "next/link";
 import { useStockpile } from '../components/Context';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const Dashboard = () => {
 
-  const { initialized } = useStockpile();
+  const { connected } = useWallet();
 
   return (
     <DashboardLayout>
@@ -17,7 +18,7 @@ const Dashboard = () => {
       </div>
       <div className="mt-4">
         <div>
-          {initialized ? (
+          {connected ? (
             <CardSection />
           ) : (
             <div>
@@ -36,5 +37,6 @@ const Dashboard = () => {
     </DashboardLayout>
   );
 }
+
 
 export default Dashboard;
