@@ -25,8 +25,9 @@ export const useStockpile = () => {
 
 export class Fundraiser {
 
-    constructor(beneficiary, name, description, imageLink, contactLink, websiteLink) {
+    constructor(beneficiary, creator, name, description, imageLink, contactLink, websiteLink) {
         this.beneficiary = beneficiary;
+        this.creator = creator;
         this.name = name;
         this.description = description;
         this.imageLink = imageLink;
@@ -36,11 +37,12 @@ export class Fundraiser {
 
     static borshSchema = borsh.struct([
         borsh.publicKey('beneficiary'),
+        borsh.str('creator'),
+        borsh.str('websiteLink'),
         borsh.str('name'),
         borsh.str('description'),
         borsh.str('imageLink'),
         borsh.str('contactLink'),
-        borsh.str('websiteLink'),
         borsh.u8('raised'),
     ])
 /*
@@ -50,6 +52,7 @@ export class Fundraiser {
                 kind: 'struct',
                 fields: [
                     ['beneficiary', [32]],
+                    ['creator', 'string'],
                     ['name', 'string'],
                     ['description', 'string'],
                     ['imageLink', 'string'],
@@ -57,14 +60,14 @@ export class Fundraiser {
                     ['websiteLink', 'string'],
                     ['raised', 'u8']]
             }]]);
-            */
+*/
            static deserialize(buffer) {
             if (!buffer) {
                 return null
             }
             try {
-                const { beneficiary, name, description, imageLink, contactLink, websiteLink, raised } = this.borshSchema.decode(buffer)
-                return new Fundraiser(beneficiary, name, description, imageLink, contactLink, websiteLink, raised)
+                const { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = this.borshSchema.decode(buffer)
+                return new Fundraiser(beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised)
             } catch(error) {
                 console.log('Deserialization error:', error)
                 return null
@@ -122,7 +125,7 @@ export const StockpileProvider = ({children}) => {
         }, [program, publicKey]
     )
 
-    const getProgramDerivedFundraiserAddress = async () => {
+    const getProgramDerivedFundraiserAddress = async (name) => {
         const [fundraiserPDA, bump] = await PublicKey.findProgramAddress(
             [utf8.encode(name), publicKey.toBuffer()],
             program.programId
@@ -130,6 +133,16 @@ export const StockpileProvider = ({children}) => {
       
         console.log(`Got ProgramDerivedAddress: bump: ${bump}, pubkey: ${fundraiserPDA.toBase58()}`);
         return { fundraiserPDA, bump };
+    };
+
+    const getProgramDerivedUserAddress = async (username) => {
+        const [userPDA, userbump] = await PublicKey.findProgramAddress(
+            [utf8.encode(username), publicKey.toBuffer()],
+            program.programId
+        );
+      
+        console.log(`Got ProgramDerivedAddress: bump: ${userbump}, pubkey: ${userPDA.toBase58()}`);
+        return { userPDA, userbump };
     };
 
     const getAllFundraisers = async () => {
@@ -155,15 +168,26 @@ export const StockpileProvider = ({children}) => {
             try {
                 console.log("FINDING PROGRAM ADDRESS...");
                 const { fundraiserPDA, bump } = await getProgramDerivedFundraiserAddress();
+                const [userPDA, userbump] = await getProgramDerivedUserAddress();
 
                 console.log("SENDING TRANSACTION...");
-                const method = await program.methods.createFundraiser(name, description, websiteLink, contactLink, imageLink, fundraiserPDA)
+
+                await program.methods.createUser(username)
                 .accounts({
-                    fundraiser: fundraiserPDA,
-                    beneficiary: anchorWallet.publicKey,
-                    rent: SYSVAR_RENT_PUBKEY,
+                    userAccount: userPDA,
+                    authority: anchorWallet.publicKey,
                     systemProgram: SystemProgram.programId,
-                }).rpc();
+                }).signers([anchorWallet.publicKey])
+                .postInstructions([                    
+                    await program.methods.createFundraiser(name, description, websiteLink, contactLink, imageLink, fundraiserPDA)
+                        .accounts({
+                            fundraiser: fundraiserPDA,
+                            beneficiary: anchorWallet.publicKey,
+                            rent: SYSVAR_RENT_PUBKEY,
+                            systemProgram: SystemProgram.programId,
+                        })
+                ]).signers([anchorWallet.publicKey])
+                .rpc();
                 
                 console.log('Sending...');
            //    const account = await program.account.fundraiser.fetch(fundraiserPDA);

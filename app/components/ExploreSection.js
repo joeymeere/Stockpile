@@ -9,25 +9,32 @@ const PROGRAM_ID = new web3.PublicKey("7iApoMteJ7ANz4dpN5kM6LdGjNRcaieqzxPHD6cdd
 
 export const ExploreSection = () => {
 
-    const { getAllFundraisers } = useStockpile();
-
     const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
     const [fundraisers, setFundraisers] = useState([])
+
 
     useEffect(() => {
         connection.getProgramAccounts(new web3.PublicKey(PROGRAM_ID)).then(async (accounts) => {
             const fundraisers = accounts.reduce((accum, { pubkey, account }) => {
             const fundraiser = Fundraiser.deserialize(account.data)
-            console.log(fundraiser);
                 if (!fundraiser) {
                     return accum
                 }
             return [...accum, fundraiser]
     },[])
+    console.log(fundraisers);
+    setFundraisers(fundraisers);
   }
 )
-                setFundraisers(fundraisers);
              }, []);
+
+/*    useEffect((fundraiser) => {
+        setFundraiser(fundraiser);
+        setName(fundraiser.name);
+        setDescription(fundraiser.description);
+        setRaised(0);
+        setImage(fundraiser.imageLink);
+    }, [fundraiser]) */
 
     
     return (
@@ -37,7 +44,10 @@ export const ExploreSection = () => {
 				fundraisers.map((fundraiser, i) =>
                     <FundraiserCard 
                     key={i} 
-                    fundraiser={fundraiser}
+                    name={fundraiser.name}
+                    description={fundraiser.description}
+                    imageLink={fundraiser.imageLink}
+                    raised={fundraiser.raised}
                     />
             )}
             </div>

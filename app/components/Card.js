@@ -3,10 +3,13 @@ import Link from "next/link";
 import { useStockpile } from './Context';
 import { Fundraiser } from './Context';
 
-export const FundraiserCard = (fundraiser) => {
+export const FundraiserCard = (props) => {
 
-  const { name, description, imageLink, raised } = fundraiser;
+  const { name, description, imageLink, raised } = props;
   const { fundraiserPDA } = useStockpile();
+
+  console.log(name)
+  console.log(imageLink)
 
     return (
 

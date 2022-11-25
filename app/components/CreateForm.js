@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Group, Modal, LoadingOverlay } from '@mantine/core';
 import toast from "react-hot-toast";
 import { useStockpile } from "./Context";
 
@@ -17,18 +18,76 @@ export const CreateForm = (props) => {
         setContactLink,
         imageLink,
         setImage,
+        username,
+        setUsername,
         buttonText = "Fundraiser",
       } = props;
       const [loading, setLoading] = useState(false);
+      const [visible, setVisible] = useState(false);
+      const [opened, setOpened] = useState(false);
 
 
         return (
-            <div className="w-2/4 place-content-center"> 
             <>
+            <Modal
+                centered={true}
+                radius="lg"
+                opened={opened}
+                onClose={() => {setOpened(false)}}>
+                    <div className="place-content-center">
+                    <Group pb="xl" position="center">
+                    <LoadingOverlay loaderProps={{color: "orange"}} radius="lg" visible={visible} overlayBlur={2} />
+                <h2 className="font-bold">Select Your Username</h2>
+                    </Group>
+                    <Group position="center">
+                    <label className="text-slate-400 font-light">
+                            A friendly name for the creator of this fundraiser
+                                    <input
+                                    name="creator"
+                                    type="creator"
+                                    placeholder="Enter your name..."
+                                    value={username}
+                                    onChange={e => setUsername(e.target.value)}
+                                    className="enabled:active:border-orange-400"
+                                    required />
+                        </label>
+                    </Group>
+                    <Group pt="xl" pb="md" position="center">
+                <button onClick={async () => {
+                    setVisible(true)
+                    console.log(visible)
+                    await setTimeout(10000);
+                    console.log("Waiting 10 seconds..")
+                    try {
+                        await onSubmit();
+                       // await createFundraiser(name, description, websiteLink, contactLink, imageLink)
+                    } catch(err) {
+                        console.log(err);
+                    } finally {
+                        setOpened(false)
+                        setVisible(false)
+                        console.log(visible)
+                        if (visible == false) {
+                            setName("")
+                            setDescription("")
+                            setContactLink("")
+                            setWebsiteLink("")
+                            setImage(null)
+                            console.log("Form Reset.")
+                        }
+                    }
+                 }
+                } className="w-sm">Continue</button>
+                </Group>
+                </div>
+            </Modal>
+            <div className="w-2/4 place-content-center"> 
+            
             {publicKey && program ? (
 
-                <form onSubmit={async () => {
-                await onSubmit();
+                <form onSubmit={async (event) => {
+                    event.preventDefault();
+                    setOpened(true)
                 }}>
 
             <h1 className="pt-6"><strong>Create a Fundraiser</strong></h1>
@@ -122,13 +181,14 @@ export const CreateForm = (props) => {
         </label>
         <button 
         onClick={async () => {
-          await onSubmit();
+           setOpened(true)
         }}>Submit</button>
         </form> ) : (
         <p>Please Connect a Wallet</p> 
         )}
-            </>
+            
         </div>
+        </>
         )
         }
 
