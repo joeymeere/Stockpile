@@ -2,7 +2,9 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-stockpile = "6oUv22bi71tqEMwEzhZFSxbdcDMda38yPxyxtBckNj69"
+stockpile = "7iApoMteJ7ANz4dpN5kM6LdGjNRcaieqzxPHD6cddFY4"
+[programs.devnet]
+stockpile = "7iApoMteJ7ANz4dpN5kM6LdGjNRcaieqzxPHD6cddFY4"
 
 [registry]
 url = "https://api.apr.dev"

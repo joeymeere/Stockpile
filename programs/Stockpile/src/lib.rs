@@ -1,13 +1,21 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
-declare_id!("FnkM2vCShr2iRZ91eTej5oAHAJhYmeJ8urysfZGM5DaB");
-
-const STRING_LEN: usize = 100;
+declare_id!("7iApoMteJ7ANz4dpN5kM6LdGjNRcaieqzxPHD6cddFY4");
 
 #[program]
 pub mod stockpile {
     use super::*;
+
+    pub fn create_user(ctx: Context<CreateUser>, username: String) -> Result<()> {
+        let user_account = &mut ctx.accounts.user_account;
+        let authority = &mut ctx.accounts.authority;
+
+        user_account.username = username;
+        user_account.authority = authority.key();
+
+        Ok(())
+    }
 
     pub fn create_fundraiser(
         ctx: Context<CreateFundraiser>,
@@ -20,9 +28,12 @@ pub mod stockpile {
         //Define beneficiary and fundraiser PDA
         let beneficiary = &mut ctx.accounts.beneficiary;
         let fundraiser = &mut ctx.accounts.fundraiser;
+        let user_account = &mut ctx.accounts.user_account;
 
         //Define key values and vectors
         fundraiser.raised = 0;
+        fundraiser.beneficiary = beneficiary.key();
+        fundraiser.creator = user_account.username.to_string();
         fundraiser.name = name;
         fundraiser.description = description;
         fundraiser.image_link = image_link;
@@ -33,6 +44,9 @@ pub mod stockpile {
     }
 
     pub fn contribute(ctx: Context<Contribute>, amount: u8) -> Result<()> {
+        let fundraiser = &mut ctx.accounts.fundraiser;
+        let contributor = &mut ctx.accounts.fundraiser;
+
         //Define simple transfer
         let cpi_ctx = CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -58,11 +72,7 @@ pub mod stockpile {
         Ok(())
     }
 
-    pub fn fundraiser_withdraw(
-        ctx: Context<FundraiserWithdraw>,
-        amount: u8,
-        fundraiser_bump: u8,
-    ) -> Result<()> {
+    pub fn fundraiser_withdraw(ctx: Context<FundraiserWithdraw>, amount: u8) -> Result<()> {
         //Define beneficiary and fundraiser PDA
         let fundraiser = &mut ctx.accounts.fundraiser;
         let beneficiary = &mut ctx.accounts.beneficiary;
@@ -73,32 +83,44 @@ pub mod stockpile {
             &self::ID,
         );
 
-        //     if pda != beneficiary.key() {
-        //         return Err(Errors::IncorrectPDAPubkey.into());
-        //     };
-
-        //     if bump != fundraiser_bump {
-        //         return Err(Errors::IncorrectBump.into());
-        //     };
-
         //Transfer from fundraiser PDA
         **fundraiser.to_account_info().try_borrow_mut_lamports()? -= amount as u64;
         **beneficiary.to_account_info().try_borrow_mut_lamports()? += amount as u64;
 
         Ok(())
     }
+
     // name: 4 + 256, desc: 4 + 256, contact_link: 4 + 1024, website_link: 4 + 2048, image_link: 4 + 2048, + 32 + 1
+
+    #[derive(Accounts)]
+    #[instruction(username: String)]
+    pub struct CreateUser<'info> {
+        #[account(init,
+            seeds = [username.as_ref(),
+            authority.key().as_ref()],
+            bump,
+            payer = authority,
+            space = 8 + 8 + 4 + 256,
+        )]
+        pub user_account: Account<'info, User>,
+        #[account(mut)]
+        pub authority: Signer<'info>,
+        pub system_program: Program<'info, System>,
+    }
+
     #[derive(Accounts)]
     #[instruction(name: String)]
     pub struct CreateFundraiser<'info> {
-        #[account(init_if_needed, 
+        #[account(init, 
         seeds = [name.as_ref(),
         beneficiary.key().as_ref()], 
         bump, 
         payer = beneficiary, 
-        space = 8 + 8 + 6144,
+        space = 8 + 32 + 4 + 100 + 4 + 1200 + 4 + 200 + 4 + 50 + 4 + 100 + 4 + 75 + 1 + 4042,
         )]
         pub fundraiser: Account<'info, Fundraiser>,
+        #[account(mut)]
+        pub user_account: Account<'info, User>,
         #[account(mut)]
         pub beneficiary: Signer<'info>,
         pub rent: Sysvar<'info, Rent>,
@@ -125,9 +147,15 @@ pub mod stockpile {
     }
 
     #[account]
-    #[derive(Default)]
+    pub struct User {
+        pub authority: Pubkey,
+        pub username: String,
+    }
+
+    #[account]
     pub struct Fundraiser {
         pub beneficiary: Pubkey,
+        pub creator: String,
         pub name: String,
         pub description: String,
         pub image_link: String,
