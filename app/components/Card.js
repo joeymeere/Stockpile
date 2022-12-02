@@ -1,22 +1,22 @@
 import React from 'react';
 import Link from "next/link";
 import { useStockpile } from './Context';
-import { Fundraiser } from './Context';
 
 export const FundraiserCard = (props) => {
 
-  const { name, description, imageLink, raised } = props;
+  const { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = props;
   const { fundraiserPDA } = useStockpile();
 
   console.log(name)
   console.log(imageLink)
+  console.log(raised)
 
     return (
 
       <div className="bg-white shadow-md rounded-md py-6 px-5">
         <img
           src={imageLink}
-          alt="Clemson club"
+          alt=""
           height={150}
           className="rounded-lg w-full mb-3"
         />
@@ -29,7 +29,7 @@ export const FundraiserCard = (props) => {
           <h5 className=""><strong>{raised}</strong> SOL raised</h5>
           <Link
             href={{
-              pathname: `/fundraiser/1`,
+              pathname: `/fundraiser/${name}`,
             }}
           >
             <button className="text-white font-bold rounded-full bg-gradient-to-r from-orange-500 to-orange-700">View</button>

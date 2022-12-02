@@ -2,7 +2,7 @@ import React from 'react';
 import { createContext, useContext, useMemo, useEffect, useState } from 'react';
 import * as anchor from '@project-serum/anchor';
 import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from '@solana/web3.js';
+import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction, sendAndConfirmTransaction } from '@solana/web3.js';
 import { IDL } from '../utils/stockpile'
 import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
@@ -25,7 +25,7 @@ export const useStockpile = () => {
 
 export class Fundraiser {
 
-    constructor(beneficiary, creator, name, description, imageLink, contactLink, websiteLink) {
+    constructor(beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised) {
         this.beneficiary = beneficiary;
         this.creator = creator;
         this.name = name;
@@ -33,6 +33,7 @@ export class Fundraiser {
         this.imageLink = imageLink;
         this.contactLink = contactLink;
         this.websiteLink = websiteLink;
+        this.raised = raised;
     }
 
     static borshSchema = borsh.struct([
@@ -45,22 +46,7 @@ export class Fundraiser {
         borsh.str('contactLink'),
         borsh.u8('raised'),
     ])
-/*
-        static borshSchema = new Map([
-            [Fundraiser,
-            {
-                kind: 'struct',
-                fields: [
-                    ['beneficiary', [32]],
-                    ['creator', 'string'],
-                    ['name', 'string'],
-                    ['description', 'string'],
-                    ['imageLink', 'string'],
-                    ['contactLink', 'string'],
-                    ['websiteLink', 'string'],
-                    ['raised', 'u8']]
-            }]]);
-*/
+
            static deserialize(buffer) {
             if (!buffer) {
                 return null
@@ -136,13 +122,13 @@ export const StockpileProvider = ({children}) => {
     };
 
     const getProgramDerivedUserAddress = async (username) => {
-        const [userPDA, userbump] = await PublicKey.findProgramAddress(
-            [utf8.encode(username), publicKey.toBuffer()],
+        const [userPDA, bump] = await PublicKey.findProgramAddress(
+            [utf8.encode('fuckItWeBall!'), publicKey.toBuffer()],
             program.programId
         );
       
-        console.log(`Got ProgramDerivedAddress: bump: ${userbump}, pubkey: ${userPDA.toBase58()}`);
-        return { userPDA, userbump };
+        console.log(`Got ProgramDerivedAddress: bump: ${bump}, pubkey: ${userPDA.toBase58()}`);
+        return { userPDA, bump };
     };
 
     const getAllFundraisers = async () => {
@@ -160,57 +146,62 @@ export const StockpileProvider = ({children}) => {
     )}
     
 
-    const createFundraiser = async (name, description, websiteLink, contactLink, imageLink) => {
+    const create = async (username, name, description, websiteLink, contactLink, imageLink) => {
         console.log("CREATING FUNDRAISER...")
 
         if(program && publicKey) {
             setTransactionPending(true);
-            try {
+
                 console.log("FINDING PROGRAM ADDRESS...");
-                const { fundraiserPDA, bump } = await getProgramDerivedFundraiserAddress();
-                const [userPDA, userbump] = await getProgramDerivedUserAddress();
+                const { fundraiserPDA, bump } = await getProgramDerivedFundraiserAddress(name);
+                const { userPDA, userbump } = await getProgramDerivedUserAddress(username);
 
                 console.log("SENDING TRANSACTION...");
 
-                await program.methods.createUser(username)
-                .accounts({
-                    userAccount: userPDA,
-                    authority: anchorWallet.publicKey,
-                    systemProgram: SystemProgram.programId,
-                }).signers([anchorWallet.publicKey])
-                .postInstructions([                    
-                    await program.methods.createFundraiser(name, description, websiteLink, contactLink, imageLink, fundraiserPDA)
+                const transaction = new Transaction()
+
+                const userCreate = await program.methods.createUser(username)
+                        .accounts({
+                            userAccount: userPDA,
+                            authority: anchorWallet.publicKey,
+                            systemProgram: SystemProgram.programId,
+                        })
+                .instruction()
+
+                const fundraiserCreate = await program.methods.createFundraiser(name, description, websiteLink, contactLink, imageLink)
                         .accounts({
                             fundraiser: fundraiserPDA,
                             beneficiary: anchorWallet.publicKey,
+                            userAccount: userPDA,
                             rent: SYSVAR_RENT_PUBKEY,
                             systemProgram: SystemProgram.programId,
                         })
-                ]).signers([anchorWallet.publicKey])
-                .rpc();
+                .instruction()
                 
+                transaction.add(userCreate, fundraiserCreate);
+
+                transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+                transaction.feePayer = anchorWallet.publicKey;
+
+                console.log(transaction);
+
+                await anchorWallet.signTransaction(transaction);
+
                 console.log('Sending...');
-           //    const account = await program.account.fundraiser.fetch(fundraiserPDA);
-           //     console.log("Added a new Fundraiser", account.fundraiser[0]);
-          //      console.log(tx);
 
-               const result = await connection.confirmTransaction(method);
-//
-                 if (result?.value.err) {
-                   return { err: 1 };
-                } else {
-                   return method;
-               }
-
-
-           } catch(error) {
-                console.log(error);
-            } finally {
-                setTransactionPending(false);
-            };
-
-        };
-    }
+                try {
+                    let txid = await sendAndConfirmTransaction(connection, transaction, { signers: [anchorWallet] });
+                    alert(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+                    console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+                } catch (e) {
+                    console.log(JSON.stringify(e))
+                    alert(JSON.stringify(e))
+                } finally {
+                    setTransactionPending(false);
+                 };
+             };
+         }
 
 
     return (
@@ -220,7 +211,7 @@ export const StockpileProvider = ({children}) => {
                 publicKey,
                 PROGRAM_ID,
                 getAllFundraisers,
-                createFundraiser,
+                create,
                 transactionPending,
                 setTransactionPending,
             }}

@@ -19,13 +19,13 @@ const SUPPORTED_FORMATS = [
 
 const Create = () => {
 
-    const { createFundraiser } = useStockpile();
+    const { create } = useStockpile();
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [websiteLink, setWebsiteLink] = useState("");
     const [contactLink, setContactLink] = useState("");
     const [username, setUsername] = useState("");
-    const [imageLink, setImage] = useState(false);
+    const [imageLink, setImage] = useState("");
 
     return(
     <>
@@ -44,7 +44,7 @@ const Create = () => {
         imageLink={imageLink}
         setImage={setImage}
         onSubmit={async () => {
-            await createFundraiser(name, description, websiteLink, contactLink, imageLink)
+            await create(username, name, description, websiteLink, contactLink, imageLink)
         }}
         />
     </DashboardLayout>

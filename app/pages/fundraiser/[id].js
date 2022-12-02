@@ -4,12 +4,17 @@ import ContributeOne from "components/Contribute/StepOne";
 import ContributeTwo from "components/Contribute/StepTwo";
 import React, { useState } from "react";
 import { Modal } from "@mantine/core";
+import { useRouter } from 'next/router'
+//import Link from 'react-router'
 
-const Fundraiser = () => {
+const Fundraiser = (props) => {
+
+  const { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = props;
+
   const [opened, setOpened] = useState(false);
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState(null);
- // const { program } = useProgram("3cV4QsMu6GKKzyhQDHsoCwXAGsW5MFJ4UbcLNBVuCcFm")
+
 
   const renderStep = (step) => {
     switch (step) {
@@ -51,13 +56,13 @@ const Fundraiser = () => {
       {renderStep(step)}
       </Modal>
       <DashboardLayout>
-        <h1 className="pt-6">Clemson Blockchain Club</h1>
+        <h1 className="pt-6">{name}</h1>
         <hr className="w-44 pb-4"></hr>
         <div className="fundraisercard h-7/12 w-7/12 flex gap-4 items-center">
           <img className="w-7/12 h-full" src="/clemson_club.png" alt="" />
           <div className="h-full bg-gray-100 rounded-lg">
           <div className="h-full m-16">
-            <h2 className="pb-4 font-normal content-center top-0"><strong>100</strong> SOL raised</h2>
+            <h2 className="pb-4 font-normal content-center top-0"><strong>{raised}</strong> SOL raised</h2>
             <ul>
               <li className="pb-4">
                 <strong>Total Contributions:</strong> 112
@@ -66,7 +71,7 @@ const Fundraiser = () => {
                 <strong>Average Contributions: </strong> 1.223 SOL
               </li>
               <li className="pb-4">
-                <strong>Created By: </strong> xAwM...Yx2d
+                <strong>Created By: </strong> {creator}
               </li>
               <li className="pb-4">
                 <strong>Token Enabled: </strong> No
@@ -85,16 +90,10 @@ const Fundraiser = () => {
           </div>
         </div>
 
-        <h2 className="mt-6 pt-4">📝 About Clemson Blockchain Club</h2>
+        <h2 className="mt-6 pt-4">📝 About {name}</h2>
         <hr className="w-44 pb-3"></hr>
         <p>
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati
-          voluptatem tempora iure voluptatum! Soluta dolor atque unde fugiat
-          expedita minima voluptatibus porro molestiae sunt quos. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati
-          voluptatem tempora iure voluptatum! Soluta dolor atque unde fugiat
-          expedita minima voluptatibus porro molestiae sunt quos. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Obcaecati
-          voluptatem tempora iure voluptatum! Soluta dolor atque unde fugiat
-          expedita minima voluptatibus porro molestiae sunt quos.
+          {description}
         </p>
 
         <h2 className="mt-6 pt-4">📈 Top Contributors</h2>
@@ -143,6 +142,7 @@ const FundraiserCard = () => {
           href={{
             pathname: `/fundraiser/1`,
           }}
+        
         >
           <button className="text-white font-bold rounded-full bg-gradient-to-r from-orange-500 to-orange-700">View</button>
         </Link>

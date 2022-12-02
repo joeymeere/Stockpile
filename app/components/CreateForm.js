@@ -29,65 +29,13 @@ export const CreateForm = (props) => {
 
         return (
             <>
-            <Modal
-                centered={true}
-                radius="lg"
-                opened={opened}
-                onClose={() => {setOpened(false)}}>
-                    <div className="place-content-center">
-                    <Group pb="xl" position="center">
-                    <LoadingOverlay loaderProps={{color: "orange"}} radius="lg" visible={visible} overlayBlur={2} />
-                <h2 className="font-bold">Select Your Username</h2>
-                    </Group>
-                    <Group position="center">
-                    <label className="text-slate-400 font-light">
-                            A friendly name for the creator of this fundraiser
-                                    <input
-                                    name="creator"
-                                    type="creator"
-                                    placeholder="Enter your name..."
-                                    value={username}
-                                    onChange={e => setUsername(e.target.value)}
-                                    className="enabled:active:border-orange-400"
-                                    required />
-                        </label>
-                    </Group>
-                    <Group pt="xl" pb="md" position="center">
-                <button onClick={async () => {
-                    setVisible(true)
-                    console.log(visible)
-                    await setTimeout(10000);
-                    console.log("Waiting 10 seconds..")
-                    try {
-                        await onSubmit();
-                       // await createFundraiser(name, description, websiteLink, contactLink, imageLink)
-                    } catch(err) {
-                        console.log(err);
-                    } finally {
-                        setOpened(false)
-                        setVisible(false)
-                        console.log(visible)
-                        if (visible == false) {
-                            setName("")
-                            setDescription("")
-                            setContactLink("")
-                            setWebsiteLink("")
-                            setImage(null)
-                            console.log("Form Reset.")
-                        }
-                    }
-                 }
-                } className="w-sm">Continue</button>
-                </Group>
-                </div>
-            </Modal>
             <div className="w-2/4 place-content-center"> 
             
             {publicKey && program ? (
 
                 <form onSubmit={async (event) => {
                     event.preventDefault();
-                    setOpened(true)
+                    await onSubmit();
                 }}>
 
             <h1 className="pt-6"><strong>Create a Fundraiser</strong></h1>
@@ -104,6 +52,22 @@ export const CreateForm = (props) => {
                     placeholder="Enter a name..."
                     value={name}
                     onChange={e => setName(e.target.value)}
+                    className="enabled:active:border-orange-400"
+                    required />
+                </label>
+        </label>
+
+        <label className="font-semibold">
+            Creator
+            <br></br>
+                <label className="text-slate-400 font-light">
+                    A friendly name for the person creating this fundraiser.
+                    <input
+                    name="username"
+                    type="username"
+                    placeholder="Enter a user name..."
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
                     className="enabled:active:border-orange-400"
                     required />
                 </label>
@@ -160,28 +124,22 @@ export const CreateForm = (props) => {
             Image
             <br></br>
                 <label className="text-slate-400 font-light">
-                    Logo or selected image for your fundraiser.
-                    {imageLink && (
-                        <div>
-                        <img alt="not found" width={"250px"} src={URL.createObjectURL(imageLink)} />
-                        <br />
-                        <button onClick={()=>setImage(null)}>Remove</button>
-                        </div>
-                    )}
-                    <input
-                    className="h-12"
-                    type="file"
-                    name="image"
-                    onChange={(e) => {
-                    console.log(e.target.files[0]);
-                    setImage(e.target.files[0]);
-                    }}
-                />
+                   A link to an image for your fundraiser
+                        <input
+                        name="image"
+                        type="contact"
+                        placeholder="Enter an image link...."
+                        value={imageLink}
+                        onChange={e => setImage(e.target.value)}
+                        className="enabled:active:border-orange-400"
+                        required />
                 </label>
         </label>
+
+        
         <button 
         onClick={async () => {
-           setOpened(true)
+           await onSubmit()
         }}>Submit</button>
         </form> ) : (
         <p>Please Connect a Wallet</p> 

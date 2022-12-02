@@ -21,21 +21,12 @@ export const ExploreSection = () => {
                     return accum
                 }
             return [...accum, fundraiser]
-    },[])
-    console.log(fundraisers);
-    setFundraisers(fundraisers);
-  }
-)
-             }, []);
-
-/*    useEffect((fundraiser) => {
-        setFundraiser(fundraiser);
-        setName(fundraiser.name);
-        setDescription(fundraiser.description);
-        setRaised(0);
-        setImage(fundraiser.imageLink);
-    }, [fundraiser]) */
-
+        },[])
+            console.log(fundraisers);
+            setFundraisers(fundraisers);
+          }
+        )
+    }, []);
     
     return (
         <div className="mt-4">
@@ -44,9 +35,13 @@ export const ExploreSection = () => {
 				fundraisers.map((fundraiser, i) =>
                     <FundraiserCard 
                     key={i} 
+                    beneficiary={fundraiser.beneficiary}
+                    creator={fundraiser.creator}
                     name={fundraiser.name}
                     description={fundraiser.description}
                     imageLink={fundraiser.imageLink}
+                    contactLink={fundraiser.contactLink}
+                    websiteLink={fundraiser.websiteLink}
                     raised={fundraiser.raised}
                     />
             )}

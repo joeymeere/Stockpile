@@ -93,10 +93,9 @@ pub mod stockpile {
     // name: 4 + 256, desc: 4 + 256, contact_link: 4 + 1024, website_link: 4 + 2048, image_link: 4 + 2048, + 32 + 1
 
     #[derive(Accounts)]
-    #[instruction(username: String)]
     pub struct CreateUser<'info> {
         #[account(init,
-            seeds = [username.as_ref(),
+            seeds = [b"fuckItWeBall!".as_ref(),
             authority.key().as_ref()],
             bump,
             payer = authority,
