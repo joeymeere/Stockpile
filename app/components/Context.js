@@ -64,6 +64,7 @@ export class Fundraiser {
 export const StockpileProvider = ({children}) => {
 
     const [ fundraisers, setFundraisers ] = useState();
+    const [ initialized, setInitialized ] = useState(false);
     const [ transactionPending, setTransactionPending ] = useState(false);
 
     const anchorWallet = useAnchorWallet();
@@ -94,13 +95,13 @@ export const StockpileProvider = ({children}) => {
                 try {
                     //CHECK for user acc
                     //Working
-                    const [fundraiserPDA] = await findProgramAddressSync([utf8.encode('fuckItWeBall'), publicKey.toBuffer()], program.programId)
-                    const userFundraisers = await program.account.fundraiser.fetch(fundraiserPDA)
+                    const [userPDA] = await findProgramAddressSync([utf8.encode('fuckItWeBall'), publicKey.toBuffer()], program.programId)
+                    const userFundraisers = await program.account.fundraiser.fetch(userPDA)
 
+                    setInitialized(true);
 
-                    if (fundraisers) {
-        
-                    }
+                    console.log(userFundraisers);
+
                 } catch(err) {
                     console.log(err)
 
@@ -168,7 +169,7 @@ export const StockpileProvider = ({children}) => {
                         })
                 .instruction()
 
-                const fundraiserCreate = await program.methods.createFundraiser(name, description, websiteLink, contactLink, imageLink)
+                const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, contactLink, websiteLink)
                         .accounts({
                             fundraiser: fundraiserPDA,
                             beneficiary: anchorWallet.publicKey,
@@ -186,13 +187,15 @@ export const StockpileProvider = ({children}) => {
 
                 console.log(transaction);
 
-                await anchorWallet.signTransaction(transaction);
+                const tx = await anchorWallet.signTransaction(transaction);
+
+                const buffer = tx.serialize().toString('base64');
 
                 console.log('Sending...');
 
                 try {
-                    let txid = await sendAndConfirmTransaction(connection, transaction, { signers: [anchorWallet] });
-                    alert(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+                    let txid = await connection.sendEncodedTransaction(buffer);
+                    toast.success('Successfully Created Fundraiser!');
                     console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
                 } catch (e) {
                     console.log(JSON.stringify(e))

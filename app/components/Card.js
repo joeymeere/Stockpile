@@ -4,7 +4,7 @@ import { useStockpile } from './Context';
 
 export const FundraiserCard = (props) => {
 
-  const { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = props;
+  let { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = props;
   const { fundraiserPDA } = useStockpile();
 
   console.log(name)
@@ -26,7 +26,7 @@ export const FundraiserCard = (props) => {
         </p>
   
         <div className="mt-4 flex justify-between items-center">
-          <h5 className=""><strong>{raised}</strong> SOL raised</h5>
+          <h5 className=""><strong>{raised - 8}</strong> SOL raised</h5>
           <Link
             href={{
               pathname: `/fundraiser/${name}`,
