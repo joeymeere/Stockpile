@@ -5,7 +5,7 @@ import { useStockpile } from "./Context";
 
 export const CreateForm = (props) => {
 
-    const { program, publicKey, initializeFundraiser } = useStockpile();
+    const { program, publicKey, initialized } = useStockpile();
     const {
         onSubmit,
         name,
@@ -56,23 +56,25 @@ export const CreateForm = (props) => {
                     required />
                 </label>
         </label>
-
-        <label className="font-semibold">
-            Creator
-            <br></br>
-                <label className="text-slate-400 font-light">
-                    A friendly name for the person creating this fundraiser.
-                    <input
-                    name="username"
-                    type="username"
-                    placeholder="Enter a user name..."
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    className="enabled:active:border-orange-400"
-                    required />
+            {initialized ? (
+                    <div></div>
+                ) : (
+                    <label className="font-semibold">
+                    Creator
+                    <br></br>
+                        <label className="text-slate-400 font-light">
+                            A friendly name for the person creating this fundraiser.
+                            <input
+                            name="username"
+                            type="username"
+                            placeholder="Enter a user name..."
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
+                            className="enabled:active:border-orange-400"
+                            required />
+                        </label>
                 </label>
-        </label>
-
+                )}
         <label className="font-semibold">
             Description
             <br></br>

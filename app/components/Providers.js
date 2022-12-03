@@ -15,7 +15,7 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import { useMemo } from "react";
 
-export const DEFAULT_ENDPOINT = "https://api.devnet.solana.com";
+export const DEFAULT_ENDPOINT = "https://rpc.ankr.com/solana_devnet";
 
 // Default styles that can be overridden by your app
 require("@solana/wallet-adapter-react-ui/styles.css");
