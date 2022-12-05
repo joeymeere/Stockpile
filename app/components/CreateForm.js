@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import { Group, Modal, LoadingOverlay } from '@mantine/core';
-import toast from "react-hot-toast";
+import React from "react";
 import { useStockpile } from "./Context";
 
 export const CreateForm = (props) => {
@@ -20,11 +18,10 @@ export const CreateForm = (props) => {
         setImage,
         username,
         setUsername,
-        buttonText = "Fundraiser",
       } = props;
-      const [loading, setLoading] = useState(false);
-      const [visible, setVisible] = useState(false);
-      const [opened, setOpened] = useState(false);
+    //  const [loading, setLoading] = useState(false);
+     // const [visible, setVisible] = useState(false);
+    //  const [opened, setOpened] = useState(false);
 
 
         return (

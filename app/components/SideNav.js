@@ -12,10 +12,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { showNotification } from "@mantine/notifications";
-import { useEffect } from "react";
 import { useStockpile } from './Context';
-import toast from "react-hot-toast";
 
 
 const useStyles = createStyles((theme) => ({
@@ -112,7 +109,7 @@ const navItems = [
 
 const SideNav = () => {
   const router = useRouter();
-  const { publicKey } = useStockpile();
+  const { publicKey, initialized, setInitialized } = useStockpile();
   const { setVisible } = useWalletModal();
   const { connected, disconnect } = useWallet();
 
@@ -130,6 +127,7 @@ const SideNav = () => {
 
   const disconnectWallet = () => {
     disconnect();
+    setInitialized(false);
   };
 
   return (
@@ -142,6 +140,21 @@ const SideNav = () => {
           <Navbar.Section grow mt={50}>
             <Stack justify="center" spacing={4}>
               {links}
+              {initialized ? (
+                 <Link
+                    href={{
+                      pathname: `/user`,
+                    }}
+                  >
+                    <NavItem
+                    label="Manage User"
+                    icon="user"
+                    route="user"
+                    />
+                </Link>
+              ) : (
+                <div></div>
+              )}
             </Stack>
           </Navbar.Section>
           <Navbar.Section>

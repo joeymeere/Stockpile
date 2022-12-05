@@ -13,7 +13,7 @@ import {
   SolletWalletAdapter,
   TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 
 export const DEFAULT_ENDPOINT = "https://rpc.ankr.com/solana_devnet";
 

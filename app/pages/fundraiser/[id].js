@@ -5,7 +5,7 @@ import ContributeTwo from "components/Contribute/StepTwo";
 import React, { useState } from "react";
 import { Modal } from "@mantine/core";
 import { useRouter } from 'next/router'
-//import Link from 'react-router'
+import Image from "next/image";
 
 const Fundraiser = (props) => {
 
@@ -59,7 +59,7 @@ const Fundraiser = (props) => {
         <h1 className="pt-6">{name}</h1>
         <hr className="w-44 pb-4"></hr>
         <div className="fundraisercard h-7/12 w-7/12 flex gap-4 items-center">
-          <img className="w-7/12 h-full" src="/clemson_club.png" alt="" />
+          <Image className="w-7/12 h-full" src="/clemson_club.png" alt="" />
           <div className="h-full bg-gray-100 rounded-lg">
           <div className="h-full m-16">
             <h2 className="pb-4 font-normal content-center top-0"><strong>{raised}</strong> SOL raised</h2>
@@ -124,7 +124,7 @@ const FundraiserCard = () => {
 
   return (
     <div className="bg-white shadow-md rounded-md py-6 px-5">
-      <img
+      <Image
         src="/clemson_club.png"
         alt="Clemson club"
         height={150}

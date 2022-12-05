@@ -2,12 +2,9 @@ import React from 'react';
 import { createContext, useContext, useMemo, useEffect, useState } from 'react';
 import * as anchor from '@project-serum/anchor';
 import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction, sendAndConfirmTransaction } from '@solana/web3.js';
+import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from '@solana/web3.js';
 import { IDL } from '../utils/stockpile'
-import { findProgramAddressSync } from '@project-serum/anchor/dist/cjs/utils/pubkey';
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
-//import * as borsh from 'borsh';
-import * as borsh from '@project-serum/borsh';
 import toast from "react-hot-toast";
 
 const StockpileContext = createContext();
@@ -23,47 +20,9 @@ export const useStockpile = () => {
     return context;
 }
 
-export class Fundraiser {
-
-    constructor(beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised) {
-        this.beneficiary = beneficiary;
-        this.creator = creator;
-        this.name = name;
-        this.description = description;
-        this.imageLink = imageLink;
-        this.contactLink = contactLink;
-        this.websiteLink = websiteLink;
-        this.raised = raised;
-    }
-
-    static borshSchema = borsh.struct([
-        borsh.publicKey('beneficiary'),
-        borsh.str('creator'),
-        borsh.str('websiteLink'),
-        borsh.str('name'),
-        borsh.str('description'),
-        borsh.str('imageLink'),
-        borsh.str('contactLink'),
-        borsh.u8('raised'),
-    ])
-
-           static deserialize(buffer) {
-            if (!buffer) {
-                return null
-            }
-            try {
-                const { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = this.borshSchema.decode(buffer)
-                return new Fundraiser(beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised)
-            } catch(error) {
-                console.log('Deserialization error:', error)
-                return null
-            }
-        } 
-     }
-
 export const StockpileProvider = ({children}) => {
 
-    const [ fundraisers, setFundraisers ] = useState();
+    const [ fundraisers, setFundraisers ] = useState([]);
     const [ initialized, setInitialized ] = useState(false);
     const [ transactionPending, setTransactionPending ] = useState(false);
 
@@ -86,7 +45,9 @@ export const StockpileProvider = ({children}) => {
 
     //Initialize program and query a connected User's fundraisers
     useEffect(() => {
+
         const start = async () => {
+
             console.log("Fetching data...")
             //Check for user
             //If user is found, fetch fundraisers
@@ -99,13 +60,21 @@ export const StockpileProvider = ({children}) => {
                         [utf8.encode('fuckItWeBall!'), publicKey.toBuffer()],
                         program.programId
                     );
-                    const userFundraisers = await program.account.user.fetch(userPDA)
+                    const userAcc = await program.account.user.fetch(userPDA.toString())
 
-                    if (userFundraisers) {
+                    const userFundraisers = await program.account.fundraiser.all(publicKey.toString())
+                    setFundraisers(userFundraisers)
+
+                    if (userAcc) {
                         console.log(`Found Address: bump: ${bump}, pubkey: ${userPDA.toBase58()}`);
                         console.log(userPDA)
                         setInitialized(true);
-                    };
+                    }
+
+                    if (userFundraisers) {
+                        console.log(userFundraisers)
+
+                    }
 
                 } catch(err) {
                     console.log(err)
@@ -137,21 +106,6 @@ export const StockpileProvider = ({children}) => {
         return { userPDA, bump };
     };
 
-    const getAllFundraisers = async () => {
-
-            connection.getProgramAccounts(new web3.PublicKey(PROGRAM_ID)).then(async (accounts) => {
-                const fundraisers = accounts.reduce((accum, { pubkey, account }) => {
-                const fundraiser = borsh.deserializeUnchecked(Fundraiser.borshSchema, Fundraiser, account.data)
-                console.log(fundraiser);
-                    if (!fundraiser) {
-                        return accum
-                    }
-                return [...accum, fundraiser, fundraisers]
-        },[])
-      }
-    )}
-    
-
     const create = async (username, name, description, websiteLink, contactLink, imageLink) => {
         console.log("CREATING FUNDRAISER...")
 
@@ -159,15 +113,15 @@ export const StockpileProvider = ({children}) => {
             setTransactionPending(true);
 
                 console.log("FINDING PROGRAM ADDRESS...");
-                const { fundraiserPDA, bump } = await getProgramDerivedFundraiserAddress(name);
-                const { userPDA, userbump } = await getProgramDerivedUserAddress();
+                const { fundraiserPDA } = await getProgramDerivedFundraiserAddress(name);
+                const { userPDA } = await getProgramDerivedUserAddress();
 
                 console.log("SENDING TRANSACTION...");
 
                 const transaction = new Transaction()
 
             if (initialized) {
-                const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, contactLink, websiteLink)
+                const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, websiteLink, contactLink)
                         .accounts({
                             fundraiser: fundraiserPDA,
                             beneficiary: anchorWallet.publicKey,
@@ -200,7 +154,7 @@ export const StockpileProvider = ({children}) => {
                     alert(JSON.stringify(e))
                 } finally {
                     setTransactionPending(false);
-                 };
+                 }
                 } else {
                     const userCreate = await program.methods.createUser(username)
                         .accounts({
@@ -241,9 +195,9 @@ export const StockpileProvider = ({children}) => {
                         alert(JSON.stringify(e))
                     } finally {
                         setTransactionPending(false);
-                     };
+                     }
                 }
-             };
+             }
          }
 
 
@@ -252,8 +206,9 @@ export const StockpileProvider = ({children}) => {
             value={{
                 program,
                 publicKey,
+                fundraisers,
                 initialized,
-                getAllFundraisers,
+                setInitialized,
                 create,
                 transactionPending,
                 setTransactionPending,

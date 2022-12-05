@@ -1,10 +1,10 @@
-import React, { Dispatch, SetStateAction, useRef, useState } from "react";
+import React, { /*Dispatch, SetStateAction, */ useRef, useState } from "react";
 import { Input } from '@mantine/core';
 import { Group, LoadingOverlay } from "@mantine/core";
 
 const ContributeTwo = (props) => {
 
-  const { selectedType, setSelectedType, onContinue } = props;
+  //const { selectedType, setSelectedType, onContinue } = props;
 
   const [visible, setVisible] = useState(false);
   const amount = useRef(null);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Link from 'next/link';
+//import Link from 'next/link';
 import { Modal, Group } from "@mantine/core";
 
 const CardSection = () => {
@@ -17,7 +17,14 @@ const CardSection = () => {
 const FundraiserCard = () => {
 
     const [opened, setOpened] = useState(false);
+    const [ description, setDescription ] = useState("");
+    const [ websiteLink, setWebsiteLink ] = useState("")
+    const [ contactLink, setContactLink ] = useState("")
 
+    console.log(description)
+    console.log(websiteLink)
+    console.log(contactLink)
+    
     return (
     <>
       <Modal

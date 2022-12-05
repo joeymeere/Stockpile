@@ -4,7 +4,7 @@ import { Chip, Group } from '@mantine/core';
 
 const ContributeOne = (props) => {
 
-    const { selectedType, setSelectedType, onContinue } = props;
+    const { /*selectedType*/ setSelectedType, onContinue } = props;
 
 const [value, setValue] = useState('');
 

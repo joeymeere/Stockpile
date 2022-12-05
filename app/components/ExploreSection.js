@@ -1,48 +1,27 @@
-import * as web3 from '@solana/web3.js';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import FundraiserCard from "./Card";
-//import * as borsh from 'borsh';
-import * as borsh from '@project-serum/borsh';
-import { Fundraiser, useStockpile, getAllFundraisers } from './Context';
-
-const PROGRAM_ID = new web3.PublicKey("7iApoMteJ7ANz4dpN5kM6LdGjNRcaieqzxPHD6cddFY4");
+import { useStockpile } from './Context';
 
 export const ExploreSection = () => {
 
-    const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
-    const [fundraisers, setFundraisers] = useState([])
-
-
-    useEffect(() => {
-        connection.getProgramAccounts(new web3.PublicKey(PROGRAM_ID)).then(async (accounts) => {
-            const fundraisers = accounts.reduce((accum, { pubkey, account }) => {
-            const fundraiser = Fundraiser.deserialize(account.data)
-                if (!fundraiser) {
-                    return accum
-                }
-            return [...accum, fundraiser]
-        },[])
-            console.log(fundraisers);
-            setFundraisers(fundraisers);
-          }
-        )
-    }, []);
+    const { fundraisers } = useStockpile();
+        
     
     return (
         <div className="mt-4">
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-4 w-2/3 h-2/3">
             {
-				fundraisers.map((fundraiser, i) =>
+			    fundraisers.map((item, i) =>
                     <FundraiserCard 
                     key={i} 
-                    beneficiary={fundraiser.beneficiary}
-                    creator={fundraiser.creator}
-                    name={fundraiser.name}
-                    description={fundraiser.description}
-                    imageLink={fundraiser.imageLink}
-                    contactLink={fundraiser.contactLink}
-                    websiteLink={fundraiser.websiteLink}
-                    raised={fundraiser.raised}
+                    beneficiary={item.account.beneficiary}
+                    creator={item.account.creator}
+                    name={item.account.name}
+                    description={item.account.description}
+                    imageLink={item.account.imageLink}
+                    contactLink={item.account.contactLink}
+                    websiteLink={item.account.websiteLink}
+                    raised={item.account.raised}
                     />
             )}
             </div>
