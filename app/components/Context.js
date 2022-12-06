@@ -6,6 +6,7 @@ import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from '@sola
 import { IDL } from '../utils/stockpile'
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import toast from "react-hot-toast";
+import { SplAssociatedTokenAccountsCoder } from '@project-serum/anchor/dist/cjs/coder/spl-associated-token/accounts';
 
 const StockpileContext = createContext();
 
@@ -23,7 +24,10 @@ export const useStockpile = () => {
 export const StockpileProvider = ({children}) => {
 
     const [ fundraisers, setFundraisers ] = useState([]);
+    const [ user, setUser ] = useState();
+    const [ userAccounts, setUserAccounts ] = useState([]);
     const [ initialized, setInitialized ] = useState(false);
+    const [ transactionFail, setTransactionFail ] = useState(false);
     const [ transactionPending, setTransactionPending ] = useState(false);
 
     const anchorWallet = useAnchorWallet();
@@ -61,19 +65,17 @@ export const StockpileProvider = ({children}) => {
                         program.programId
                     );
                     const userAcc = await program.account.user.fetch(userPDA.toString())
+                    setUser(userAcc);
 
-                    const userFundraisers = await program.account.fundraiser.all(publicKey.toString())
-                    setFundraisers(userFundraisers)
+                    const fundraisers = await program.account.fundraiser.all(PROGRAM_ID.toString())
+                    setFundraisers(fundraisers)
+
+                    let objectAccounts = fundraisers.filter(fundraiser => fundraiser.account.beneficiary.toString() === publicKey.toString());
+                    setUserAccounts(objectAccounts)
 
                     if (userAcc) {
-                        console.log(`Found Address: bump: ${bump}, pubkey: ${userPDA.toBase58()}`);
-                        console.log(userPDA)
+                        console.log(`Found User Address: bump: ${bump}, pubkey: ${userPDA.toBase58()}`);
                         setInitialized(true);
-                    }
-
-                    if (userFundraisers) {
-                        console.log(userFundraisers)
-
                     }
 
                 } catch(err) {
@@ -139,7 +141,16 @@ export const StockpileProvider = ({children}) => {
 
                 console.log(transaction);
 
-                const tx = await anchorWallet.signTransaction(transaction);
+                const tx = await anchorWallet.signTransaction(transaction)
+                .catch(err => {
+                    console.log(err);
+                    setTransactionFail(true)
+                    return;
+                });
+
+                if (transactionFail) {
+                    return;
+                }
 
                 const buffer = tx.serialize().toString('base64');
 
@@ -147,11 +158,9 @@ export const StockpileProvider = ({children}) => {
 
                 try {
                     let txid = await connection.sendEncodedTransaction(buffer);
-                    toast.success('Successfully Created Fundraiser!');
                     console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
                 } catch (e) {
                     console.log(JSON.stringify(e))
-                    alert(JSON.stringify(e))
                 } finally {
                     setTransactionPending(false);
                  }
@@ -182,13 +191,21 @@ export const StockpileProvider = ({children}) => {
 
                     console.log(transaction);
 
-                    const tx = await anchorWallet.signTransaction(transaction);
+                    const tx = await anchorWallet.signTransaction(transaction)
+                    .catch(err => {
+                        console.log(err);
+                        setTransactionFail(true)
+                        return;
+                    });
+
+                    if (transactionFail) {
+                        return;
+                    }
 
                     const buffer = tx.serialize().toString('base64');
 
                     try {
                         let txid = await connection.sendEncodedTransaction(buffer);
-                        toast.success('Successfully Created Fundraiser!');
                         console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
                     } catch (e) {
                         console.log(JSON.stringify(e))
@@ -207,8 +224,10 @@ export const StockpileProvider = ({children}) => {
                 program,
                 publicKey,
                 fundraisers,
+                user,
                 initialized,
                 setInitialized,
+                userAccounts,
                 create,
                 transactionPending,
                 setTransactionPending,

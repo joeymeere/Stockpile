@@ -1,56 +1,57 @@
 import React, { useEffect, useState } from 'react';
 import CardSection from '../components/CardSection'
+import FundraiserCard from '../components/Card';
 import { useStockpile } from '../components/Context';
 import DashboardLayout from '../components/DashboardLayout'
-import { IDL } from '../utils/stockpile'
-import { useAnchorWallet, useWallet, useConnection } from '@solana/wallet-adapter-react';
 
 const User = () => {
 
-    const { initialized, program } = useStockpile();
+    const [ accounts, setAccounts ] = useState([]);
 
-    const { connection } = useConnection();
-    const anchorWallet = useAnchorWallet();
-    const { publicKey } = useWallet();
-    const [ userFundraisers, setUserFundraisers ] = useState({});
+    const { initialized, publicKey, user, userAccounts } = useStockpile();
 
-    useEffect(() => {
-        const search = async () => {
-            try {
-                const [userPDA, bump] = await PublicKey.findProgramAddress(
-                    [utf8.encode('fuckItWeBall!'), publicKey.toBuffer()],
-                    program.programId
-                );
-                const filterAccounts = await program.account.fundraiser.all([
-                    {
-                      memcmp: {
-                        offset: 8,
-                        bytes: creator.publicKey.toBase58(),
-                      },
-                    },
-                  ])
-
-                console.log(usersFundraisers);
-
-                setUserFundraisers(usersFundraisers);
-
-                return userFundraisers;
-            } catch(err) {
-                console.log(err);
-            }
-          }
-         search();
-        }, []
-    );
+    console.log(userAccounts)
 
   return (
     <DashboardLayout>
         {initialized ? (
+        <>
             <div>
-            <h1 className="pt-6"><strong>{userFundraisers.username}</strong></h1>
-            <hr className="w-44"></hr>
-            <p>Manage your user accound.</p>
+                <div className="pt-6">
+                    <h1 className="pt-6"><strong>View User</strong></h1>
+                    <hr className="w-44"></hr>
+                    <p>Manage your user account.</p>
+                </div>
+                <div>
+                    <p>Username: {user.username}</p>
+                    <br></br>
+                    <p>Fundraisers Deployed: {user.fundraisers}</p>
+                    <br></br>
+                    <p>Contributions Made: {user.contributions}</p>
+                </div>
+                <div>
+                    <h2 className="font-bold pt-12">🚀 My Fundraisers</h2>
+                    <hr className="w-24 pb-6"></hr>
+                </div>
             </div>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-4 w-2/3 h-2/3">
+              {
+                userAccounts.map((item, i) => 
+                    <FundraiserCard 
+                    key={i} 
+                    beneficiary={item.account.beneficiary}
+                    creator={item.account.creator}
+                    name={item.account.name}
+                    description={item.account.description}
+                    imageLink={item.account.imageLink}
+                    contactLink={item.account.contactLink}
+                    websiteLink={item.account.websiteLink}
+                    raised={item.account.raised}
+                    />
+                 ) 
+              }
+            </div>
+        </>
         ): (
             <p> Please create a user account. This can be done by connecting a wallet and creating a fundraiser or contributing to one.</p>
         )}

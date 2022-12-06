@@ -44,7 +44,14 @@ const Create = () => {
         imageLink={imageLink}
         setImage={setImage}
         onSubmit={async () => {
-            await create(username, name, description, websiteLink, contactLink, imageLink)
+            await toast.promise(
+                create(username, name, description, websiteLink, contactLink, imageLink),
+                 {
+                   loading: 'Submitting...',
+                   success: <b>Fundraiser Successfully Created!</b>,
+                   error: <b>Transaction Failed.</b>,
+                 }
+               );
         }}
         />
     </DashboardLayout>

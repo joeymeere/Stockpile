@@ -30,10 +30,7 @@ export const CreateForm = (props) => {
             
             {publicKey && program ? (
 
-                <form onSubmit={async (event) => {
-                    event.preventDefault();
-                    await onSubmit();
-                }}>
+                <form>
 
             <h1 className="pt-6"><strong>Create a Fundraiser</strong></h1>
             <hr className="w-44"></hr>
@@ -137,7 +134,8 @@ export const CreateForm = (props) => {
 
         
         <button 
-        onClick={async () => {
+        onClick={async (event) => {
+           event.preventDefault();
            await onSubmit()
         }}>Submit</button>
         </form> ) : (
