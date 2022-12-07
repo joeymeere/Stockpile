@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import FundraiserCard from "./Card";
 import { useStockpile } from './Context';
 
 export const ExploreSection = () => {
 
     const { fundraisers } = useStockpile();
-        
     
     return (
         <div className="mt-4">

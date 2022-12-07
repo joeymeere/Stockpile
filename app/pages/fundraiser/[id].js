@@ -2,18 +2,24 @@ import DashboardLayout from "components/DashboardLayout";
 import Link from "next/link";
 import ContributeOne from "components/Contribute/StepOne";
 import ContributeTwo from "components/Contribute/StepTwo";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Modal } from "@mantine/core";
-import { useRouter } from 'next/router'
-import Image from "next/image";
+import { useStateContext } from "../../components/state";
 
 const Fundraiser = (props) => {
-
-  const { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = props;
 
   const [opened, setOpened] = useState(false);
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState(null);
+  const {currentRaised, 
+        currentWebsiteLink,
+        currentContactLink,
+        currentImageLink,
+        currentDescription, 
+        currentName,
+        currentCreator,
+        currentBeneficiary,
+   } = useStateContext();
 
 
   const renderStep = (step) => {
@@ -56,13 +62,13 @@ const Fundraiser = (props) => {
       {renderStep(step)}
       </Modal>
       <DashboardLayout>
-        <h1 className="pt-6">{name}</h1>
+        <h1 className="pt-6">{currentName}</h1>
         <hr className="w-44 pb-4"></hr>
         <div className="fundraisercard h-7/12 w-7/12 flex gap-4 items-center">
-          <Image className="w-7/12 h-full" src="/clemson_club.png" alt="" />
+          <img className="w-7/12 h-full" src={currentImageLink} alt="" />
           <div className="h-full bg-gray-100 rounded-lg">
           <div className="h-full m-16">
-            <h2 className="pb-4 font-normal content-center top-0"><strong>{raised}</strong> SOL raised</h2>
+            <h2 className="pb-4 font-normal content-center top-0"><strong>{currentRaised}</strong> SOL raised</h2>
             <ul>
               <li className="pb-4">
                 <strong>Total Contributions:</strong> 112
@@ -71,7 +77,7 @@ const Fundraiser = (props) => {
                 <strong>Average Contributions: </strong> 1.223 SOL
               </li>
               <li className="pb-4">
-                <strong>Created By: </strong> {creator}
+                <strong>Created By: </strong> {currentCreator}
               </li>
               <li className="pb-4">
                 <strong>Token Enabled: </strong> No
@@ -90,10 +96,10 @@ const Fundraiser = (props) => {
           </div>
         </div>
 
-        <h2 className="mt-6 pt-4">📝 About {name}</h2>
+        <h2 className="mt-6 pt-4">📝 About {currentName}</h2>
         <hr className="w-44 pb-3"></hr>
         <p>
-          {description}
+          {currentDescription}
         </p>
 
         <h2 className="mt-6 pt-4">📈 Top Contributors</h2>
@@ -124,7 +130,7 @@ const FundraiserCard = () => {
 
   return (
     <div className="bg-white shadow-md rounded-md py-6 px-5">
-      <Image
+      <img
         src="/clemson_club.png"
         alt="Clemson club"
         height={150}

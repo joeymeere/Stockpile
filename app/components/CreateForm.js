@@ -19,20 +19,16 @@ export const CreateForm = (props) => {
         username,
         setUsername,
       } = props;
-    //  const [loading, setLoading] = useState(false);
-     // const [visible, setVisible] = useState(false);
-    //  const [opened, setOpened] = useState(false);
-
 
         return (
             <>
-            <div className="w-2/4 place-content-center"> 
+            <div className="w-2/4 place-content-center h-screen"> 
             
             {publicKey && program ? (
 
                 <form>
 
-            <h1 className="pt-6"><strong>Create a Fundraiser</strong></h1>
+            <h1 className="pt-6"><strong>🧱 Create a Fundraiser</strong></h1>
             <hr className="w-44"></hr>
 
         <label className="font-semibold">

@@ -94,16 +94,16 @@ const navItems = [
     route: "explore",
   },
   {
-    label: "Dashboard",
-    route: "dashboard",
-  },
-  {
     label: "Create a Fundraiser",
     route: "create",
   },
   {
-    label: "About",
-    route: "about",
+    label: "For Fundraisers",
+    route: "fundraisers",
+  },
+  {
+    label: "For Contributors",
+    route: "contributors",
   },
 ];
 

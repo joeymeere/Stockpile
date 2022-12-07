@@ -53,9 +53,7 @@ export const StockpileProvider = ({children}) => {
         const start = async () => {
 
             console.log("Fetching data...")
-            //Check for user
-            //If user is found, fetch fundraisers
-            //If none, set state to false (need button to init user)
+
             if(program && publicKey) {
                 try {
                     //CHECK for user acc
@@ -72,6 +70,7 @@ export const StockpileProvider = ({children}) => {
 
                     let objectAccounts = fundraisers.filter(fundraiser => fundraiser.account.beneficiary.toString() === publicKey.toString());
                     setUserAccounts(objectAccounts)
+                    console.log(objectAccounts)
 
                     if (userAcc) {
                         console.log(`Found User Address: bump: ${bump}, pubkey: ${userPDA.toBase58()}`);

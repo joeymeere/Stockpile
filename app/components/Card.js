@@ -1,15 +1,24 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import Link from "next/link";
-import { useStockpile } from './Context';
+import { useStateContext } from './state';
+import { useRouter } from 'next/router';
 
 export const FundraiserCard = (props) => {
 
-  let { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = props;
-  const { fundraiserPDA } = useStockpile();
+  const router = useRouter();
 
-  console.log(name)
-  console.log(imageLink)
-  console.log(raised)
+  let { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = props;
+
+  const {
+    updateCurrentBeneficiary,
+    updateCurrentContactLink,
+    updateCurrentCreator,
+    updateCurrentDescription,
+    updateCurrentImageLink,
+    updateCurrentName,
+    updateCurrentRaised,
+    updateCurrentWebsiteLink
+   } = useStateContext();
 
     return (
 
@@ -27,16 +36,25 @@ export const FundraiserCard = (props) => {
   
         <div className="mt-4 flex justify-between items-center">
           <h5 className=""><strong>{raised}</strong> SOL raised</h5>
-          <Link
-            href={{
-              pathname: `/fundraiser/${name}`,
+            <button 
+            className="text-white font-bold rounded-full bg-gradient-to-r from-orange-500 to-orange-700"
+            onClick={async () => {
+              updateCurrentBeneficiary(beneficiary);
+              updateCurrentCreator(creator);
+              updateCurrentName(name);
+              updateCurrentDescription(description);
+              updateCurrentImageLink(imageLink);
+              updateCurrentContactLink(contactLink);
+              updateCurrentWebsiteLink(websiteLink);
+              updateCurrentRaised(raised);
+
+              router.push( `/fundraiser/${name}`)
             }}
-          >
-            <button className="text-white font-bold rounded-full bg-gradient-to-r from-orange-500 to-orange-700">View</button>
-          </Link>
+            >View</button>
         </div>
       </div>
     );
 };
+
 
 export default FundraiserCard;
