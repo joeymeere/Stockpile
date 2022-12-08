@@ -128,7 +128,9 @@ const User = () => {
          </div>
         </>
         ): (
-            <p> Please create a user account. This can be done by connecting a wallet and creating a fundraiser or contributing to one.</p>
+          <div className="h-screen">
+            <h2 className="font-bold">🚨 Please create a user account. This can be done by connecting a wallet, then creating a fundraiser or contributing to one! 🚨</h2>
+          </div>
         )}
     </DashboardLayout>
   )
