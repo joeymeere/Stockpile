@@ -1,473 +1,248 @@
 export type Stockpile = {
-  "version": "0.1.0",
-  "name": "stockpile",
-  "instructions": [
+  version: "0.1.0";
+  name: "stockpile";
+  instructions: [
     {
-      "name": "createUser",
-      "accounts": [
-        {
-          "name": "userAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "username",
-          "type": "string"
-        }
-      ]
+      name: "createUser";
+      accounts: [
+        { name: "userAccount"; isMut: true; isSigner: false },
+        { name: "authority"; isMut: true; isSigner: true },
+        { name: "systemProgram"; isMut: false; isSigner: false }
+      ];
+      args: [{ name: "username"; type: "string" }];
     },
     {
-      "name": "createFundraiser",
-      "accounts": [
-        {
-          "name": "fundraiser",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "beneficiary",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "name": "description",
-          "type": "string"
-        },
-        {
-          "name": "imageLink",
-          "type": "string"
-        },
-        {
-          "name": "websiteLink",
-          "type": "string"
-        },
-        {
-          "name": "contactLink",
-          "type": "string"
-        }
-      ]
+      name: "createFundraiser";
+      accounts: [
+        { name: "fundraiser"; isMut: true; isSigner: false },
+        { name: "userAccount"; isMut: true; isSigner: false },
+        { name: "beneficiary"; isMut: true; isSigner: true },
+        { name: "rent"; isMut: false; isSigner: false },
+        { name: "systemProgram"; isMut: false; isSigner: false }
+      ];
+      args: [
+        { name: "name"; type: "string" },
+        { name: "description"; type: "string" },
+        { name: "imageLink"; type: "string" },
+        { name: "websiteLink"; type: "string" },
+        { name: "contactLink"; type: "string" },
+        { name: "goal"; type: "string" }
+      ];
     },
     {
-      "name": "contribute",
-      "accounts": [
-        {
-          "name": "fundraiser",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "contributor",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u8"
-        }
-      ]
+      name: "contribute";
+      accounts: [
+        { name: "fundraiser"; isMut: true; isSigner: false },
+        { name: "contributor"; isMut: true; isSigner: true },
+        { name: "userAccount"; isMut: true; isSigner: false },
+        { name: "tokenProgram"; isMut: false; isSigner: false },
+        { name: "systemProgram"; isMut: false; isSigner: false }
+      ];
+      args: [{ name: "amount"; type: "u64" }];
     },
     {
-      "name": "fundraiserWithdraw",
-      "accounts": [
-        {
-          "name": "fundraiser",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "beneficiary",
-          "isMut": true,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u8"
-        }
-      ]
+      name: "fundraiserWithdraw";
+      accounts: [
+        { name: "fundraiser"; isMut: true; isSigner: false },
+        { name: "beneficiary"; isMut: true; isSigner: true }
+      ];
+      args: [{ name: "amount"; type: "u64" }];
     }
-  ],
-  "accounts": [
+  ];
+  accounts: [
     {
-      "name": "user",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "username",
-            "type": "string"
-          }
-        ]
-      }
+      name: "User";
+      type: {
+        kind: "struct";
+        fields: [
+          { name: "authority"; type: "publicKey" },
+          { name: "username"; type: "string" },
+          { name: "fundraisers"; type: "u8" },
+          { name: "contributions"; type: "u8" }
+        ];
+      };
     },
     {
-      "name": "fundraiser",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "beneficiary",
-            "type": "publicKey"
-          },
-          {
-            "name": "creator",
-            "type": "string"
-          },
-          {
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "name": "imageLink",
-            "type": "string"
-          },
-          {
-            "name": "contactLink",
-            "type": "string"
-          },
-          {
-            "name": "websiteLink",
-            "type": "string"
-          },
-          {
-            "name": "raised",
-            "type": "u8"
-          }
-        ]
-      }
+      name: "Fundraiser";
+      type: {
+        kind: "struct";
+        fields: [
+          { name: "beneficiary"; type: "publicKey" },
+          { name: "creator"; type: "string" },
+          { name: "name"; type: "string" },
+          { name: "description"; type: "string" },
+          { name: "imageLink"; type: "string" },
+          { name: "contactLink"; type: "string" },
+          { name: "websiteLink"; type: "string" },
+          { name: "raised"; type: "u64" },
+          { name: "goal"; type: "string" },
+          { name: "bump"; type: "u8" }
+        ];
+      };
     },
     {
-      "name": "contributor",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "contributor",
-            "type": "publicKey"
-          },
-          {
-            "name": "amount",
-            "type": "u8"
-          },
-          {
-            "name": "contributionCount",
-            "type": "u8"
-          }
-        ]
-      }
+      name: "Contributor";
+      type: {
+        kind: "struct";
+        fields: [
+          { name: "contributor"; type: "publicKey" },
+          { name: "username"; type: "string" },
+          { name: "amount"; type: "u64" }
+        ];
+      };
+    },
+    {
+      name: "Beneficiary";
+      type: {
+        kind: "struct";
+        fields: [
+          { name: "username"; type: "string" },
+          { name: "amount"; type: "u64" }
+        ];
+      };
     }
-  ],
-  "errors": [
+  ];
+  errors: [
+    { code: 6000; name: "NameTooLong"; msg: "Fundraiser Name is too long" },
+    { code: 6001; name: "DescriptionTooLong"; msg: "Description is too long" },
     {
-      "code": 6000,
-      "name": "IncorrectPDAPubkey",
-      "msg": "The pubkey supplied is incorrect"
+      code: 6002;
+      name: "AmountTooLarge";
+      msg: "Attempting to withdraw more than Fundraiser's balance";
     },
     {
-      "code": 6001,
-      "name": "IncorrectBump",
-      "msg": "The bump supplied is incorrect"
+      code: 6003;
+      name: "GoalNotMet";
+      msg: "Fundraiser's goal has not been met";
     },
     {
-      "code": 6002,
-      "name": "NameTooLong",
-      "msg": "Fundraiser Name is too long"
-    },
-    {
-      "code": 6003,
-      "name": "DescriptionTooLong",
-      "msg": "Description is too long"
+      code: 6004;
+      name: "InvalidBeneficiary";
+      msg: "Invalid Beneficiary provided";
     }
-  ]
+  ];
 };
-
 export const IDL: Stockpile = {
-  "version": "0.1.0",
-  "name": "stockpile",
-  "instructions": [
+  version: "0.1.0",
+  name: "stockpile",
+  instructions: [
     {
-      "name": "createUser",
-      "accounts": [
-        {
-          "name": "userAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "authority",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+      name: "createUser",
+      accounts: [
+        { name: "userAccount", isMut: true, isSigner: false },
+        { name: "authority", isMut: true, isSigner: true },
+        { name: "systemProgram", isMut: false, isSigner: false },
       ],
-      "args": [
-        {
-          "name": "username",
-          "type": "string"
-        }
-      ]
+      args: [{ name: "username", type: "string" }],
     },
     {
-      "name": "createFundraiser",
-      "accounts": [
-        {
-          "name": "fundraiser",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "userAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "beneficiary",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+      name: "createFundraiser",
+      accounts: [
+        { name: "fundraiser", isMut: true, isSigner: false },
+        { name: "userAccount", isMut: true, isSigner: false },
+        { name: "beneficiary", isMut: true, isSigner: true },
+        { name: "rent", isMut: false, isSigner: false },
+        { name: "systemProgram", isMut: false, isSigner: false },
       ],
-      "args": [
-        {
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "name": "description",
-          "type": "string"
-        },
-        {
-          "name": "imageLink",
-          "type": "string"
-        },
-        {
-          "name": "websiteLink",
-          "type": "string"
-        },
-        {
-          "name": "contactLink",
-          "type": "string"
-        }
-      ]
+      args: [
+        { name: "name", type: "string" },
+        { name: "description", type: "string" },
+        { name: "imageLink", type: "string" },
+        { name: "websiteLink", type: "string" },
+        { name: "contactLink", type: "string" },
+        { name: "goal", type: "string" },
+      ],
     },
     {
-      "name": "contribute",
-      "accounts": [
-        {
-          "name": "fundraiser",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "contributor",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+      name: "contribute",
+      accounts: [
+        { name: "fundraiser", isMut: true, isSigner: false },
+        { name: "contributor", isMut: true, isSigner: true },
+        { name: "userAccount", isMut: true, isSigner: false },
+        { name: "tokenProgram", isMut: false, isSigner: false },
+        { name: "systemProgram", isMut: false, isSigner: false },
       ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u8"
-        }
-      ]
+      args: [{ name: "amount", type: "u64" }],
     },
     {
-      "name": "fundraiserWithdraw",
-      "accounts": [
-        {
-          "name": "fundraiser",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "beneficiary",
-          "isMut": true,
-          "isSigner": true
-        }
+      name: "fundraiserWithdraw",
+      accounts: [
+        { name: "fundraiser", isMut: true, isSigner: false },
+        { name: "beneficiary", isMut: true, isSigner: true },
       ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u8"
-        }
-      ]
-    }
+      args: [{ name: "amount", type: "u64" }],
+    },
   ],
-  "accounts": [
+  accounts: [
     {
-      "name": "user",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "authority",
-            "type": "publicKey"
-          },
-          {
-            "name": "username",
-            "type": "string"
-          }
-        ]
-      }
+      name: "User",
+      type: {
+        kind: "struct",
+        fields: [
+          { name: "authority", type: "publicKey" },
+          { name: "username", type: "string" },
+          { name: "fundraisers", type: "u8" },
+          { name: "contributions", type: "u8" },
+        ],
+      },
     },
     {
-      "name": "fundraiser",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "beneficiary",
-            "type": "publicKey"
-          },
-          {
-            "name": "creator",
-            "type": "string"
-          },
-          {
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "name": "imageLink",
-            "type": "string"
-          },
-          {
-            "name": "contactLink",
-            "type": "string"
-          },
-          {
-            "name": "websiteLink",
-            "type": "string"
-          },
-          {
-            "name": "raised",
-            "type": "u8"
-          }
-        ]
-      }
+      name: "Fundraiser",
+      type: {
+        kind: "struct",
+        fields: [
+          { name: "beneficiary", type: "publicKey" },
+          { name: "creator", type: "string" },
+          { name: "name", type: "string" },
+          { name: "description", type: "string" },
+          { name: "imageLink", type: "string" },
+          { name: "contactLink", type: "string" },
+          { name: "websiteLink", type: "string" },
+          { name: "raised", type: "u64" },
+          { name: "goal", type: "string" },
+          { name: "bump", type: "u8" },
+        ],
+      },
     },
     {
-      "name": "contributor",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "contributor",
-            "type": "publicKey"
-          },
-          {
-            "name": "amount",
-            "type": "u8"
-          },
-          {
-            "name": "contributionCount",
-            "type": "u8"
-          }
-        ]
-      }
-    }
+      name: "Contributor",
+      type: {
+        kind: "struct",
+        fields: [
+          { name: "contributor", type: "publicKey" },
+          { name: "username", type: "string" },
+          { name: "amount", type: "u64" },
+        ],
+      },
+    },
+    {
+      name: "Beneficiary",
+      type: {
+        kind: "struct",
+        fields: [
+          { name: "username", type: "string" },
+          { name: "amount", type: "u64" },
+        ],
+      },
+    },
   ],
-  "errors": [
+  errors: [
+    { code: 6000, name: "NameTooLong", msg: "Fundraiser Name is too long" },
+    { code: 6001, name: "DescriptionTooLong", msg: "Description is too long" },
     {
-      "code": 6000,
-      "name": "IncorrectPDAPubkey",
-      "msg": "The pubkey supplied is incorrect"
+      code: 6002,
+      name: "AmountTooLarge",
+      msg: "Attempting to withdraw more than Fundraiser's balance",
     },
     {
-      "code": 6001,
-      "name": "IncorrectBump",
-      "msg": "The bump supplied is incorrect"
+      code: 6003,
+      name: "GoalNotMet",
+      msg: "Fundraiser's goal has not been met",
     },
     {
-      "code": 6002,
-      "name": "NameTooLong",
-      "msg": "Fundraiser Name is too long"
+      code: 6004,
+      name: "InvalidBeneficiary",
+      msg: "Invalid Beneficiary provided",
     },
-    {
-      "code": 6003,
-      "name": "DescriptionTooLong",
-      "msg": "Description is too long"
-    }
-  ]
+  ],
 };

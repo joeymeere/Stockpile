@@ -1,8 +1,4 @@
-import * as Yup from "yup";
 import React, { useState } from "react";
-import { IconUpload } from '@tabler/icons';
-import { Group, Modal, LoadingOverlay } from '@mantine/core';
-import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { useStockpile } from "../components/Context";
 import DashboardLayout from "../components/DashboardLayout";
 import toast from "react-hot-toast";
@@ -26,10 +22,12 @@ const Create = () => {
     const [contactLink, setContactLink] = useState("");
     const [username, setUsername] = useState("");
     const [imageLink, setImage] = useState("");
+    const [goal, setGoal] = useState("");
 
     return(
     <>
     <DashboardLayout>
+        <div>
         <CreateForm
         name={name}
         setName={setName}
@@ -41,11 +39,14 @@ const Create = () => {
         setContactLink={setContactLink}
         username={username}
         setUsername={setUsername}
+        goal={goal}
+        setGoal={setGoal}
         imageLink={imageLink}
         setImage={setImage}
         onSubmit={async () => {
+            console.log(username, name, description, websiteLink, contactLink, imageLink, goal)
             await toast.promise(
-                create(username, name, description, websiteLink, contactLink, imageLink),
+                create(username, name, description, websiteLink, contactLink, imageLink, goal),
                  {
                    loading: 'Submitting...',
                    success: <b>Fundraiser Successfully Created!</b>,
@@ -54,6 +55,7 @@ const Create = () => {
                );
         }}
         />
+        </div>
     </DashboardLayout>
     </>
     )

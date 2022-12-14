@@ -2,15 +2,14 @@ import React from 'react';
 import { createContext, useContext, useMemo, useEffect, useState } from 'react';
 import * as anchor from '@project-serum/anchor';
 import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from '@solana/web3.js';
+import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js';
 import { IDL } from '../utils/stockpile'
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
-import toast from "react-hot-toast";
-import { SplAssociatedTokenAccountsCoder } from '@project-serum/anchor/dist/cjs/coder/spl-associated-token/accounts';
+import { useStateContext } from './state';
 
 const StockpileContext = createContext();
 
-const PROGRAM_ID = new PublicKey("7iApoMteJ7ANz4dpN5kM6LdGjNRcaieqzxPHD6cddFY4");
+const PROGRAM_ID = new PublicKey("9GCkYhkuT8pZLYLc1dczpbV7ycaFDGrWpmTbDMU5x4oU");
 
 export const useStockpile = () => {
     const context = useContext(StockpileContext);
@@ -30,11 +29,11 @@ export const StockpileProvider = ({children}) => {
     const [ transactionFail, setTransactionFail ] = useState(false);
     const [ transactionPending, setTransactionPending ] = useState(false);
 
+    const { currentFundraiserPubkey, currentAmount } = useStateContext();
+
     const anchorWallet = useAnchorWallet();
     const { connection } = useConnection();
     const { publicKey } = useWallet();
-
-    console.log("Connected wallet: ", publicKey);
 
     const program = useMemo(() => {
         if(anchorWallet) {
@@ -55,27 +54,29 @@ export const StockpileProvider = ({children}) => {
             console.log("Fetching data...")
 
             if(program && publicKey) {
+
                 try {
                     //CHECK for user acc
                     //Working
-                    const [userPDA, bump] = await PublicKey.findProgramAddress(
-                        [utf8.encode('fuckItWeBall!'), publicKey.toBuffer()],
-                        program.programId
-                    );
-                    const userAcc = await program.account.user.fetch(userPDA.toString())
-                    setUser(userAcc);
 
-                    const fundraisers = await program.account.fundraiser.all(PROGRAM_ID.toString())
-                    setFundraisers(fundraisers)
+                        const [userPDA, bump] = await PublicKey.findProgramAddress(
+                                [utf8.encode('fuckItWeBall!'), publicKey.toBuffer()],
+                                program.programId
+                            );
+                        const userAcc = await program.account.user.fetch(userPDA.toString())
+                        setUser(userAcc);
 
-                    let objectAccounts = fundraisers.filter(fundraiser => fundraiser.account.beneficiary.toString() === publicKey.toString());
-                    setUserAccounts(objectAccounts)
-                    console.log(objectAccounts)
+                        const fundraisers = await program.account.fundraiser.all(PROGRAM_ID.toString())
+                        setFundraisers(fundraisers)
 
-                    if (userAcc) {
-                        console.log(`Found User Address: bump: ${bump}, pubkey: ${userPDA.toBase58()}`);
-                        setInitialized(true);
-                    }
+                        let objectAccounts = fundraisers.filter(fundraiser => fundraiser.account.beneficiary.toString() === publicKey.toString());
+                        setUserAccounts(objectAccounts)
+                        console.log(objectAccounts)
+
+                        if (userAcc) {
+                            console.log(`Found User Address: bump: ${bump}, pubkey: ${userPDA.toBase58()}`);
+                            setInitialized(true);
+                        }
 
                 } catch(err) {
                     console.log(err)
@@ -87,9 +88,9 @@ export const StockpileProvider = ({children}) => {
         }, [program, publicKey]
     )
 
-    const getProgramDerivedFundraiserAddress = async (name) => {
+    const getProgramDerivedFundraiserAddress = async (name, userPDA) => {
         const [fundraiserPDA, bump] = await PublicKey.findProgramAddress(
-            [utf8.encode(name), publicKey.toBuffer()],
+            [utf8.encode(name), userPDA.toBuffer(), publicKey.toBuffer()],
             program.programId
         );
       
@@ -107,22 +108,22 @@ export const StockpileProvider = ({children}) => {
         return { userPDA, bump };
     };
 
-    const create = async (username, name, description, websiteLink, contactLink, imageLink) => {
+    const create = async (username, name, description, websiteLink, contactLink, imageLink, goal) => {
         console.log("CREATING FUNDRAISER...")
 
         if(program && publicKey) {
             setTransactionPending(true);
 
                 console.log("FINDING PROGRAM ADDRESS...");
-                const { fundraiserPDA } = await getProgramDerivedFundraiserAddress(name);
                 const { userPDA } = await getProgramDerivedUserAddress();
+                const { fundraiserPDA } = await getProgramDerivedFundraiserAddress(name, userPDA);
 
                 console.log("SENDING TRANSACTION...");
 
                 const transaction = new Transaction()
 
             if (initialized) {
-                const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, websiteLink, contactLink)
+                const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, websiteLink, contactLink, goal)
                         .accounts({
                             fundraiser: fundraiserPDA,
                             beneficiary: anchorWallet.publicKey,
@@ -172,7 +173,7 @@ export const StockpileProvider = ({children}) => {
                         })
                          .instruction()
 
-                    const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, contactLink, websiteLink)
+                    const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, contactLink, websiteLink, goal)
                         .accounts({
                             fundraiser: fundraiserPDA,
                             beneficiary: anchorWallet.publicKey,
@@ -216,6 +217,121 @@ export const StockpileProvider = ({children}) => {
              }
          }
 
+    const contribute = async (amount) => {
+
+        console.log("CONTRIBUTING TO FUNDRAISER...")
+
+        if(program && publicKey) {
+            setTransactionPending(true);
+
+                const { userPDA } = await getProgramDerivedUserAddress();
+
+                console.log("SENDING TRANSACTION...");
+
+                const transaction = new Transaction()
+            
+                if (initialized) {
+                    const contributeToFundraiser = await program.methods.contribute(new anchor.BN(amount))
+                            .accounts({
+                                fundraiser: currentFundraiserPubkey,
+                                contributor: anchorWallet.publicKey,
+                                userAccount: userPDA,
+                            })
+                    .instruction()
+                    
+                    transaction.add(contributeToFundraiser, SystemProgram.transfer({
+                        fromPubkey: anchorWallet.publicKey,
+                        toPubkey: currentFundraiserPubkey,
+                        lamports: new anchor.BN(amount * LAMPORTS_PER_SOL),
+                        })
+                      );
+    
+                    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    
+                    transaction.feePayer = anchorWallet.publicKey;
+    
+                    console.log(transaction);
+    
+                    const tx = await anchorWallet.signTransaction(transaction)
+                    .catch(err => {
+                        console.log(err);
+                        setTransactionFail(true)
+                        return;
+                    });
+    
+                    if (transactionFail) {
+                        return;
+                    }
+    
+                    const buffer = tx.serialize().toString('base64');
+    
+                    console.log('Sending...');
+    
+                    try {
+                        let txid = await connection.sendEncodedTransaction(buffer);
+                        console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+                    } catch (e) {
+                        console.log(JSON.stringify(e))
+                    } finally {
+                        setTransactionPending(false);
+                     }
+                    } else {
+                        const userCreate = await program.methods.createUser(username)
+                            .accounts({
+                                userAccount: userPDA,
+                                authority: anchorWallet.publicKey,
+                                systemProgram: SystemProgram.programId,
+                            })
+                             .instruction()
+    
+                        const contributeToFundraiser = await program.methods.contribute(amount)
+                             .accounts({
+                                 fundraiser: currentFundraiserPubkey,
+                                 contributor: anchorWallet.publicKey,
+                                 userAccount: userPDA,
+                             })
+                            .instruction()
+    
+                        transaction.add(userCreate, contributeToFundraiser, SystemProgram.transfer({
+                            fromPubkey: anchorWallet.publicKey,
+                            toPubkey: currentFundraiserPubkey,
+                            lamports: amount * LAMPORTS_PER_SOL,
+                          })
+                        );
+    
+                        transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    
+                        transaction.feePayer = anchorWallet.publicKey;
+    
+                        console.log(transaction);
+    
+                        const tx = await anchorWallet.signTransaction(transaction)
+                        .catch(err => {
+                            console.log(err);
+                            setTransactionFail(true)
+                            return;
+                        });
+    
+                        if (transactionFail) {
+                            return;
+                        }
+    
+                        const buffer = tx.serialize().toString('base64');
+    
+                        try {
+                            let txid = await connection.sendEncodedTransaction(buffer);
+                            console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+                        } catch (e) {
+                            console.log(JSON.stringify(e))
+                            alert(JSON.stringify(e))
+                        } finally {
+                            setTransactionPending(false);
+                         }
+            }
+
+        }
+    }
+
 
     return (
         <StockpileContext.Provider 
@@ -228,6 +344,7 @@ export const StockpileProvider = ({children}) => {
                 setInitialized,
                 userAccounts,
                 create,
+                contribute,
                 transactionPending,
                 setTransactionPending,
             }}

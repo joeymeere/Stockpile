@@ -19,6 +19,7 @@ const Fundraiser = (props) => {
         currentName,
         currentCreator,
         currentBeneficiary,
+        currentGoal,
    } = useStateContext();
 
 
@@ -34,8 +35,6 @@ const Fundraiser = (props) => {
         );
 
         case 2:
-          console.log("Contribute Step 2...", selectedType);
-          
           return (<ContributeTwo
                 setSelectedType={setSelectedType}
                 selectedType={selectedType}
@@ -43,7 +42,6 @@ const Fundraiser = (props) => {
                  />);
 
         case 3:
-          console.log("Contribute Step 3...", selectedType);
           return (<div></div>);
 
         default:
@@ -62,22 +60,25 @@ const Fundraiser = (props) => {
       {renderStep(step)}
       </Modal>
       <DashboardLayout>
-        <h1 className="pt-6">{currentName}</h1>
+        <h1 className="pt-6">{String(currentName)}</h1>
         <hr className="w-44 pb-4"></hr>
         <div className="fundraisercard h-7/12 w-7/12 flex gap-4 items-center">
-          <img className="w-7/12 h-full" src={currentImageLink} alt="" />
+          <img className="w-7/12 h-full rounded-lg" src={String(currentImageLink)} alt="" />
           <div className="h-full bg-gray-100 rounded-lg">
           <div className="h-full m-16">
             <h2 className="pb-4 font-normal content-center top-0"><strong>{currentRaised}</strong> SOL raised</h2>
             <ul>
               <li className="pb-4">
+                <strong>beneficiary: </strong> {String(currentBeneficiary).slice(0, 4) + "..." + String(currentBeneficiary).slice(40, 45)}
+              </li>
+              <li className="pb-4">
                 <strong>Total Contributions:</strong> 112
               </li>
               <li className="pb-4">
-                <strong>Average Contributions: </strong> 1.223 SOL
+                <strong>Goal: </strong> {String(currentGoal)} SOL
               </li>
               <li className="pb-4">
-                <strong>Created By: </strong> {currentCreator}
+                <strong>Created By: </strong> {String(currentCreator)}
               </li>
               <li className="pb-4">
                 <strong>Token Enabled: </strong> No
@@ -96,10 +97,10 @@ const Fundraiser = (props) => {
           </div>
         </div>
 
-        <h2 className="mt-6 pt-4">📝 About {currentName}</h2>
+        <h2 className="mt-6 pt-4">📝 About {String(currentName)}</h2>
         <hr className="w-44 pb-3"></hr>
         <p>
-          {currentDescription}
+          {String(currentDescription)}
         </p>
 
         <h2 className="mt-6 pt-4">📈 Top Contributors</h2>

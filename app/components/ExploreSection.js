@@ -21,6 +21,8 @@ export const ExploreSection = () => {
                     contactLink={item.account.contactLink}
                     websiteLink={item.account.websiteLink}
                     raised={item.account.raised}
+                    goal={item.account.goal}
+                    pubkey={item.publicKey}
                     />
             )}
             </div>

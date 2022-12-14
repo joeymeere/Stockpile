@@ -20,6 +20,9 @@ export const StateProvider = ({ children }) => {
   const [ currentContactLink, setCurrentContactLink ] = useState('');
   const [ currentWebsiteLink, setCurrentWebsiteLink ] = useState('');
   const [ currentRaised, setCurrentRaised ] = useState(0);
+  const [ currentGoal, setCurrentGoal ] = useState(0);
+  const [ currentAmount, setCurrentAmount ] = useState(0);
+  const [ currentFundraiserPubkey, setCurrentFundraiserPubkey ] = useState('');
 
   async function updateCurrentBeneficiary(beneficiary) {
     setCurrentBeneficiary(beneficiary)
@@ -53,6 +56,18 @@ export const StateProvider = ({ children }) => {
     setCurrentRaised(raised)
   }
 
+  async function updateCurrentGoal(goal) {
+    setCurrentGoal(goal)
+  }
+
+  async function updateCurrentAmount(amount) {
+    setCurrentAmount(amount)
+  }
+
+  async function updateCurrentFundraiserPubkey(fundraiserPubkey) {
+    setCurrentFundraiserPubkey(fundraiserPubkey)
+  }
+
   return (
     <stateContext.Provider 
     value={{
@@ -64,6 +79,9 @@ export const StateProvider = ({ children }) => {
         currentName,
         currentCreator,
         currentBeneficiary,
+        currentGoal,
+        currentAmount,
+        currentFundraiserPubkey,
         updateCurrentBeneficiary,
         updateCurrentContactLink,
         updateCurrentCreator,
@@ -71,7 +89,10 @@ export const StateProvider = ({ children }) => {
         updateCurrentImageLink,
         updateCurrentName,
         updateCurrentRaised,
-        updateCurrentWebsiteLink
+        updateCurrentWebsiteLink,
+        updateCurrentGoal,
+        updateCurrentAmount,
+        updateCurrentFundraiserPubkey,
     }}>
         {children}
     </stateContext.Provider>

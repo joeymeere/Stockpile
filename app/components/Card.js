@@ -7,7 +7,7 @@ export const FundraiserCard = (props) => {
 
   const router = useRouter();
 
-  let { beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised } = props;
+  let { pubkey, beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised, goal } = props;
 
   const {
     updateCurrentBeneficiary,
@@ -17,25 +17,27 @@ export const FundraiserCard = (props) => {
     updateCurrentImageLink,
     updateCurrentName,
     updateCurrentRaised,
-    updateCurrentWebsiteLink
+    updateCurrentWebsiteLink,
+    updateCurrentGoal,
+    updateCurrentFundraiserPubkey,
    } = useStateContext();
 
     return (
 
       <div className="bg-white shadow-md rounded-md py-6 px-5">
         <img
-          src={imageLink}
+          src={String(imageLink)}
           alt=""
           height={150}
           className="rounded-lg w-full mb-3"
         />
-        <h3><strong>{name}</strong></h3>
+        <h3><strong>{String(name)}</strong></h3>
         <p className="text-gray-400 py-4">
           {description}
         </p>
   
         <div className="mt-4 flex justify-between items-center">
-          <h5 className=""><strong>{raised}</strong> SOL raised</h5>
+          <h5 className=""><strong>{String(raised)}</strong> SOL raised</h5>
             <button 
             className="text-white font-bold rounded-full bg-gradient-to-r from-orange-500 to-orange-700"
             onClick={async () => {
@@ -47,8 +49,10 @@ export const FundraiserCard = (props) => {
               updateCurrentContactLink(contactLink);
               updateCurrentWebsiteLink(websiteLink);
               updateCurrentRaised(raised);
+              updateCurrentGoal(goal);
+              updateCurrentFundraiserPubkey(pubkey);
 
-              router.push( `/fundraiser/${name}`)
+              router.push( `/fundraiser/${String(name)}`)
             }}
             >View</button>
         </div>
