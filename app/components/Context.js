@@ -6,10 +6,11 @@ import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, LAMPORTS_PER_SOL, Transac
 import { IDL } from '../utils/stockpile'
 import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { useStateContext } from './state';
+import toast from 'react-hot-toast';
 
 const StockpileContext = createContext();
 
-const PROGRAM_ID = new PublicKey("9GCkYhkuT8pZLYLc1dczpbV7ycaFDGrWpmTbDMU5x4oU");
+const PROGRAM_ID = new PublicKey("8VZTpK9SSLDge4UA14e4BvJVuHkgMxAQ1qfeefPcuKsD");
 
 export const useStockpile = () => {
     const context = useContext(StockpileContext);
@@ -25,6 +26,7 @@ export const StockpileProvider = ({children}) => {
     const [ fundraisers, setFundraisers ] = useState([]);
     const [ user, setUser ] = useState();
     const [ userAccounts, setUserAccounts ] = useState([]);
+    const [ trendingAccounts, setTrendingAccounts ] = useState([]);
     const [ initialized, setInitialized ] = useState(false);
     const [ transactionFail, setTransactionFail ] = useState(false);
     const [ transactionPending, setTransactionPending ] = useState(false);
@@ -51,8 +53,6 @@ export const StockpileProvider = ({children}) => {
 
         const start = async () => {
 
-            console.log("Fetching data...")
-
             if(program && publicKey) {
 
                 try {
@@ -64,17 +64,24 @@ export const StockpileProvider = ({children}) => {
                                 program.programId
                             );
                         const userAcc = await program.account.user.fetch(userPDA.toString())
-                        setUser(userAcc);
+                            setUser(userAcc);
 
                         const fundraisers = await program.account.fundraiser.all(PROGRAM_ID.toString())
-                        setFundraisers(fundraisers)
+                            setFundraisers(fundraisers)
 
                         let objectAccounts = fundraisers.filter(fundraiser => fundraiser.account.beneficiary.toString() === publicKey.toString());
-                        setUserAccounts(objectAccounts)
-                        console.log(objectAccounts)
+                            setUserAccounts(objectAccounts)
+                /*        
+                        let sortedAccounts = fundraisers.sort((a, b) => b.account.raised - a.account.raised);
+                            console.log(sortedAccounts);
+
+                        let trendingAccountsArray = sortedAccounts.slice(0, 2);
+                            setTrendingAccounts(trendingAccountsArray)
+                                console.log(trendingAccounts);
+                */
 
                         if (userAcc) {
-                            console.log(`Found User Address: bump: ${bump}, pubkey: ${userPDA.toBase58()}`);
+                            //console.log(`Found User Address: bump: ${bump}, pubkey: ${userPDA.toBase58()}`);
                             setInitialized(true);
                         }
 
@@ -158,7 +165,7 @@ export const StockpileProvider = ({children}) => {
 
                 try {
                     let txid = await connection.sendEncodedTransaction(buffer);
-                    console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+                    console.log(`Transaction submitted: https://solana.fm/tx/${txid}?cluster=devnet-qn1`)
                 } catch (e) {
                     console.log(JSON.stringify(e))
                 } finally {
@@ -206,7 +213,7 @@ export const StockpileProvider = ({children}) => {
 
                     try {
                         let txid = await connection.sendEncodedTransaction(buffer);
-                        console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+                        console.log(`Transaction submitted: https://solana.fm/tx/${txid}?cluster=devnet-qn1`)
                     } catch (e) {
                         console.log(JSON.stringify(e))
                         alert(JSON.stringify(e))
@@ -227,6 +234,12 @@ export const StockpileProvider = ({children}) => {
                 const { userPDA } = await getProgramDerivedUserAddress();
 
                 console.log("SENDING TRANSACTION...");
+
+                const userBalance = connection.getBalance(publicKey);
+
+                if (userBalance < amount ) {
+                    return toast.error("Insufficient Balance.");
+                } else {
 
                 const transaction = new Transaction()
             
@@ -269,7 +282,7 @@ export const StockpileProvider = ({children}) => {
     
                     try {
                         let txid = await connection.sendEncodedTransaction(buffer);
-                        console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+                        console.log(`Transaction submitted: https://solana.fm/tx/${txid}?cluster=devnet-qn1`)
                     } catch (e) {
                         console.log(JSON.stringify(e))
                     } finally {
@@ -320,31 +333,156 @@ export const StockpileProvider = ({children}) => {
     
                         try {
                             let txid = await connection.sendEncodedTransaction(buffer);
-                            console.log(`Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+                            console.log(`Transaction submitted: https://solana.fm/tx/${txid}?cluster=devnet-qn1`)
                         } catch (e) {
                             console.log(JSON.stringify(e))
                             alert(JSON.stringify(e))
                         } finally {
                             setTransactionPending(false);
                          }
-            }
+                    }
+                   }
+                 }
+                }
 
-        }
-    }
+    const updateUser = async (username) => {
+
+        console.log("UPDATING...")
+
+        if(program && publicKey) {
+            setTransactionPending(true);
+
+                const { userPDA } = await getProgramDerivedUserAddress();
+
+                console.log("SENDING TRANSACTION...");
+
+                const transaction = new Transaction()
+
+                    const updateUsername = await program.methods.updateUser(username)
+                            .accounts({
+                                userAccount: userPDA,
+                                authority: anchorWallet.publicKey,
+                                systemProgram: SystemProgram.programId,
+                            })
+                    .instruction()
+                    
+                    transaction.add(updateUsername);
+    
+                    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    
+                    transaction.feePayer = anchorWallet.publicKey;
+    
+                    console.log(transaction);
+    
+                    const tx = await anchorWallet.signTransaction(transaction)
+                    .catch(err => {
+                        console.log(err);
+                        setTransactionFail(true)
+                        return;
+                    });
+    
+                    if (transactionFail) {
+                        return;
+                    }
+    
+                    const buffer = tx.serialize().toString('base64');
+    
+                    console.log('Sending...');
+    
+                    try {
+                        let txid = await connection.sendEncodedTransaction(buffer);
+                        console.log(`Transaction submitted: https://solana.fm/tx/${txid}?cluster=devnet-qn1`)
+                    } catch (e) {
+                        console.log(JSON.stringify(e))
+                    } finally {
+                        setTransactionPending(false);
+                     }
+              }
+           }
+
+        const withdraw = async (amount) => {
+
+            console.log("WITHDRAWING FUNDRAISER...")
+    
+            if(program && publicKey) {
+                setTransactionPending(true);
+    
+                    const { userPDA } = await getProgramDerivedUserAddress();
+    
+                    console.log("SENDING TRANSACTION...");
+    
+                    const userBalance = connection.getBalance(publicKey);
+    
+                    if (userBalance < amount ) {
+                        return toast.error("Insufficient Balance.");
+                    } else {
+    
+                    const transaction = new Transaction()
+                
+                    if (initialized) {
+                        const withdrawFromFundraiser = await program.methods.fundraiserWithdraw(new anchor.BN(amount))
+                                .accounts({
+                                    fundraiser: currentFundraiserPubkey,
+                                    userAccount: userPDA,
+                                    beneficiary: anchorWallet.publicKey,
+                                    systemProgram: SystemProgram.programId,
+                                })
+                        .instruction()
+                        
+                        transaction.add(withdrawFromFundraiser);
+        
+                        transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+        
+                        transaction.feePayer = anchorWallet.publicKey;
+        
+                        console.log(transaction);
+        
+                        const tx = await anchorWallet.signTransaction(transaction)
+                        .catch(err => {
+                            console.log(err);
+                            setTransactionFail(true)
+                            return;
+                        });
+        
+                        if (transactionFail) {
+                            return;
+                        }
+        
+                        const buffer = tx.serialize().toString('base64');
+        
+                        console.log('Sending...');
+        
+                        try {
+                            let txid = await connection.sendEncodedTransaction(buffer);
+                            console.log(`Transaction submitted: https://solana.fm/tx/${txid}?cluster=devnet-qn1`)
+                        } catch (e) {
+                            console.log(JSON.stringify(e))
+                        } finally {
+                            setTransactionPending(false);
+                         }
+                       }
+                    }
+                }
+            }
+                     
 
 
     return (
         <StockpileContext.Provider 
             value={{
                 program,
+                connection,
                 publicKey,
                 fundraisers,
                 user,
                 initialized,
                 setInitialized,
                 userAccounts,
+                trendingAccounts,
                 create,
                 contribute,
+                updateUser,
+                withdraw,
                 transactionPending,
                 setTransactionPending,
             }}

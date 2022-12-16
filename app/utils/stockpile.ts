@@ -12,6 +12,15 @@ export type Stockpile = {
       args: [{ name: "username"; type: "string" }];
     },
     {
+      name: "updateUser";
+      accounts: [
+        { name: "userAccount"; isMut: true; isSigner: false },
+        { name: "authority"; isMut: true; isSigner: true },
+        { name: "systemProgram"; isMut: false; isSigner: false }
+      ];
+      args: [{ name: "username"; type: "string" }];
+    },
+    {
       name: "createFundraiser";
       accounts: [
         { name: "fundraiser"; isMut: true; isSigner: false },
@@ -38,15 +47,17 @@ export type Stockpile = {
         { name: "tokenProgram"; isMut: false; isSigner: false },
         { name: "systemProgram"; isMut: false; isSigner: false }
       ];
-      args: [{ name: "amount"; type: "u64" }];
+      args: [{ name: "amount"; type: "f64" }];
     },
     {
       name: "fundraiserWithdraw";
       accounts: [
         { name: "fundraiser"; isMut: true; isSigner: false },
-        { name: "beneficiary"; isMut: true; isSigner: true }
+        { name: "userAccount"; isMut: true; isSigner: false },
+        { name: "beneficiary"; isMut: true; isSigner: false },
+        { name: "systemProgram"; isMut: false; isSigner: false }
       ];
-      args: [{ name: "amount"; type: "u64" }];
+      args: [{ name: "amount"; type: "f64" }];
     }
   ];
   accounts: [
@@ -58,7 +69,8 @@ export type Stockpile = {
           { name: "authority"; type: "publicKey" },
           { name: "username"; type: "string" },
           { name: "fundraisers"; type: "u8" },
-          { name: "contributions"; type: "u8" }
+          { name: "contributions"; type: "u8" },
+          { name: "bump"; type: "u8" }
         ];
       };
     },
@@ -76,6 +88,7 @@ export type Stockpile = {
           { name: "websiteLink"; type: "string" },
           { name: "raised"; type: "u64" },
           { name: "goal"; type: "string" },
+          { name: "contributions"; type: "u8" },
           { name: "bump"; type: "u8" }
         ];
       };
@@ -87,7 +100,7 @@ export type Stockpile = {
         fields: [
           { name: "contributor"; type: "publicKey" },
           { name: "username"; type: "string" },
-          { name: "amount"; type: "u64" }
+          { name: "amount"; type: "f64" }
         ];
       };
     },
@@ -136,6 +149,15 @@ export const IDL: Stockpile = {
       args: [{ name: "username", type: "string" }],
     },
     {
+      name: "updateUser",
+      accounts: [
+        { name: "userAccount", isMut: true, isSigner: false },
+        { name: "authority", isMut: true, isSigner: true },
+        { name: "systemProgram", isMut: false, isSigner: false },
+      ],
+      args: [{ name: "username", type: "string" }],
+    },
+    {
       name: "createFundraiser",
       accounts: [
         { name: "fundraiser", isMut: true, isSigner: false },
@@ -162,15 +184,17 @@ export const IDL: Stockpile = {
         { name: "tokenProgram", isMut: false, isSigner: false },
         { name: "systemProgram", isMut: false, isSigner: false },
       ],
-      args: [{ name: "amount", type: "u64" }],
+      args: [{ name: "amount", type: "f64" }],
     },
     {
       name: "fundraiserWithdraw",
       accounts: [
         { name: "fundraiser", isMut: true, isSigner: false },
-        { name: "beneficiary", isMut: true, isSigner: true },
+        { name: "userAccount", isMut: true, isSigner: false },
+        { name: "beneficiary", isMut: true, isSigner: false },
+        { name: "systemProgram", isMut: false, isSigner: false },
       ],
-      args: [{ name: "amount", type: "u64" }],
+      args: [{ name: "amount", type: "f64" }],
     },
   ],
   accounts: [
@@ -183,6 +207,7 @@ export const IDL: Stockpile = {
           { name: "username", type: "string" },
           { name: "fundraisers", type: "u8" },
           { name: "contributions", type: "u8" },
+          { name: "bump", type: "u8" },
         ],
       },
     },
@@ -200,6 +225,7 @@ export const IDL: Stockpile = {
           { name: "websiteLink", type: "string" },
           { name: "raised", type: "u64" },
           { name: "goal", type: "string" },
+          { name: "contributions", type: "u8" },
           { name: "bump", type: "u8" },
         ],
       },
@@ -211,7 +237,7 @@ export const IDL: Stockpile = {
         fields: [
           { name: "contributor", type: "publicKey" },
           { name: "username", type: "string" },
-          { name: "amount", type: "u64" },
+          { name: "amount", type: "f64" },
         ],
       },
     },

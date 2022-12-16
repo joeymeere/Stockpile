@@ -4,11 +4,14 @@ import FundraiserCard from '../components/Card';
 import { Modal, Group } from "@mantine/core";
 import { useStockpile } from '../components/Context';
 import DashboardLayout from '../components/DashboardLayout'
+import toast from "react-hot-toast";
 
 const User = () => {
 
-    const { initialized, user, userAccounts } = useStockpile();
+    const { initialized, user, userAccounts, updateUser } = useStockpile();
     const [opened, setOpened] = useState(false);
+
+    const [ username, setUsername ] = useState("");
 
   return (
     <DashboardLayout>
@@ -21,59 +24,41 @@ const User = () => {
             onClose={() => {setOpened(false)}}>
             <div className="place-content-center">
                 <Group pb="xl" position="center">
-                <h2 className="font-bold">Update Fundraiser</h2>
+                <h2 className="font-bold">Update User</h2>
                     </Group>
                         <form>
                     <Group position="center">
-                        <label className="font-semibold">
-                        Description
-                        <br></br>
-                            <label className="text-slate-400 font-light">
-                                A description of your fundraiser and its goals. 
-                                <textarea
-                                name="description"
-                                type="description"
-                                placeholder="Enter a new description..."
-                                value={null}
-                                onChange={e => setDescription(e.target.value)}
-                                className="enabled:active:border-orange-400"
-                                required />
-                            </label>
-                    </label>
-
                     <label className="font-semibold">
-                        Website
+                        New Username
                         <br></br>
                             <label className="text-slate-400 font-light">
-                                A website or webage where your fundraiser can be contacted.
+                               Add a new username to your account
                                     <input
-                                    name="website"
-                                    type="website"
-                                    placeholder="Enter a new website..."
-                                    value={null}
-                                    onChange={e => setWebsiteLink(e.target.value)}
-                                    required />
-                            </label>
-                    </label>
-
-                    <label className="font-semibold">
-                        Contact
-                        <br></br>
-                            <label className="text-slate-400 font-light">
-                                Where a representative of your fundraiser can be reached
-                                    <input
-                                    name="contact"
-                                    type="contact"
-                                    placeholder="Enter a new email, twitter, or other contact..."
-                                    value={null}
-                                    onChange={e => setContactLink(e.target.value)}
-                                    className="enabled:active:border-orange-400"
+                                    name="username"
+                                    type="username"
+                                    placeholder="Enter a new username..."
+                                    value={username}
+                                    onChange={e => setUsername(e.target.value)}
                                     required />
                             </label>
                     </label>
                     </Group>
                     <Group pt="xl" pb="md" position="center">
-                <button className="w-sm">Update</button>
+                <button 
+                className="w-sm"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  await toast.promise(
+                    updateUser(username),
+                     {
+                       loading: 'Submitting...',
+                       success: <b>Successfully Updated Username!</b>,
+                       error: <b>Transaction Failed.</b>,
+                     }
+                   );
+                   setOpened(false);
+                }}
+                >Update</button>
                 </Group>
                 </form>
             </div>
@@ -121,6 +106,7 @@ const User = () => {
                     contactLink={item.account.contactLink}
                     websiteLink={item.account.websiteLink}
                     raised={item.account.raised}
+                    goal={item.account.goal}
                     />
                  ) 
               }

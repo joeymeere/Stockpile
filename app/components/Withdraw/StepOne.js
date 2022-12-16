@@ -6,9 +6,9 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useStockpile } from "../Context";
 import { useStateContext } from "../state";
 
-const ContributeTwo = () => {
+const WithdrawOne = () => {
 
-  const { contribute, connection, publicKey } = useStockpile();
+  const { connection, publicKey, withdraw } = useStockpile();
   const { currentAmount, updateCurrentAmount } = useStateContext();
 
   const [visible, setVisible] = useState(false);
@@ -26,7 +26,7 @@ return (
     <>
      <Group pb="lg" position="center">
      <LoadingOverlay loaderProps={{color: "orange"}} radius="lg" visible={visible} overlayBlur={2} onClick={() => setVisible(false)} />
-    <h2 className="font-bold pb-">Input Amount</h2>
+    <h2 className="font-bold pb-">Input Withdraw Amount</h2>
     </Group>
     <Group pb="md" position="center">
     <input
@@ -43,20 +43,20 @@ return (
     <button onClick={async () => {setVisible((v) => !v)
       console.log(currentAmount);
           await toast.promise(
-            contribute(currentAmount),
+            withdraw(currentAmount),
              {
                loading: 'Submitting...',
-               success: <b>Successfully Contributed {currentAmount} SOL!</b>,
+               success: <b>Successfully Withdrawn {currentAmount} SOL!</b>,
                error: <b>Transaction Failed.</b>,
              }
            );
           setVisible(false);
           setOpened(false);
         }} 
-        className="w-sm">Contribute</button>
+        className="w-sm">Withdraw</button>
     </Group>
     </>
 )
 }
 
-export default ContributeTwo;
+export default WithdrawOne;

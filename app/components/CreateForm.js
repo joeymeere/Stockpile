@@ -6,6 +6,7 @@ import { useStockpile } from "./Context";
 import { Uploader } from './Uploader';
 import { CldUploadWidget } from 'next-cloudinary';
 import { LoadingOverlay } from "@mantine/core";
+import toast from "react-hot-toast";
 
 export const CreateForm = (props) => {
 
@@ -40,11 +41,11 @@ export const CreateForm = (props) => {
 
       const schema = Yup.object().shape({
         name: Yup.string().required().label("Name").min(4, 'Name should have at least 4 letters'),
-        creator: Yup.string().required().label("Creator").min(4, 'Creator name should have at least 4 letters'),
+     //   creator: Yup.string().required().label("Creator").min(4, 'Creator name should have at least 4 letters'),
         description: Yup.string().required().label("Description").min(20, 'Description should have at least 20 letters'),
         contact: Yup.string().required().label("Contact"),
         website: Yup.string().url().required().label("Website"),
-        goal: Yup.number().required().label("Goal").min(1, "Goal must be above 1 SOL.")
+      //  goal: Yup.number().required().label("Goal").min(1, "Goal must be above 1 SOL.")
        // image: Yup.mixed().required("A file is required").test("fileSize", "File too large", value => value && value.size <= FILE_SIZE).test("fileFormat", "Unsupported Format", value => value && SUPPORTED_FORMATS.includes(value.type)),
         });
 
@@ -52,9 +53,13 @@ export const CreateForm = (props) => {
         resolver: yupResolver(schema),
       });
 
-      const submitForm = (data) => {
-        console.log(data);
-      };
+      const submitForm = async () => {
+        await onSubmit();
+      }
+
+      const formInvalid = async () => {
+        toast.error('Required Fields Missing');
+      }
 
         return (
             <>
@@ -62,7 +67,7 @@ export const CreateForm = (props) => {
             
             {publicKey && program ? (
 
-                <form onSubmit={handleSubmit(submitForm)}>
+                <form id='create' onSubmit={handleSubmit(submitForm, formInvalid)}>
 
             <h1 className="pt-6"><strong>🧱 Create a Fundraiser</strong></h1>
             <hr className="w-44"></hr>
@@ -83,9 +88,9 @@ export const CreateForm = (props) => {
                     onChange={e => setName(e.target.value)}
                     className="enabled:active:border-orange-400"
                     required />
+                    <p className="text-red-500"> {errors.name?.message} </p>
                 </label>
         </label>
-        <p> {errors.name?.message} </p>
             {initialized ? (
                     <div></div>
                 ) : (
@@ -99,16 +104,14 @@ export const CreateForm = (props) => {
                             type="username"
                             placeholder="Enter a user name..."
                             value={username}
-                            {...register('creator', {
-                                required: "Required",
-                              })}
+                            {...register('creator')}
                             onChange={e => setUsername(e.target.value)}
                             className="enabled:active:border-orange-400"
                             required />
+                            <p className="text-red-500"> {errors.creator?.message} </p>
                         </label>
                 </label>
                 )}
-                <p> {errors.creator?.message} </p>
         <label className="font-semibold">
             Description
             <br></br>
@@ -125,9 +128,9 @@ export const CreateForm = (props) => {
                     onChange={e => setDescription(e.target.value)}
                     className="enabled:active:border-orange-400"
                     required />
+                    <p className="text-red-500"> {errors.description?.message} </p>
                 </label>
         </label>
-        <p> {errors.description?.message} </p>
 
         <label className="font-semibold">
             Image
@@ -192,6 +195,7 @@ export const CreateForm = (props) => {
                         onChange={e => setGoal(e.target.value)}
                         className="enabled:active:border-orange-400"
                         required />
+                        <p className="text-red-500"> {errors.goal?.message} </p>
                 </label>
         </label>
 
@@ -210,9 +214,9 @@ export const CreateForm = (props) => {
                           })}
                         onChange={e => setWebsiteLink(e.target.value)}
                         required />
+                        <p className="text-red-500"> {errors.websiteLink?.message} </p>
                 </label>
         </label>
-        <p> {errors.websiteLink?.message} </p>
 
         <label className="font-semibold">
             Contact
@@ -230,16 +234,14 @@ export const CreateForm = (props) => {
                         onChange={e => setContactLink(e.target.value)}
                         className="enabled:active:border-orange-400"
                         required />
+                        <p className="text-red-500"> {errors.contactLink?.message} </p>
                 </label>
         </label>
-        <p> {errors.contactLink?.message} </p>
 
         <div className="pb-6 py-2">
             <button 
-            onClick={async (event) => {
-            event.preventDefault();
-            await onSubmit()
-            }}>Submit</button>
+            onClick={handleSubmit(submitForm, formInvalid)}
+            >Submit</button>
         </div>
         </form> ) : (
         <p>Please Connect a Wallet</p> 
