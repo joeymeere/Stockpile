@@ -8,19 +8,11 @@ import { useStateContext } from "../state";
 
 const ContributeTwo = () => {
 
-  const { contribute, connection, publicKey } = useStockpile();
+  const { contribute, balance} = useStockpile();
   const { currentAmount, updateCurrentAmount } = useStateContext();
 
   const [visible, setVisible] = useState(false);
   const [opened, setOpened] = useState(false);
-
-  const balance = () => {
-    connection.getBalance(publicKey).then((bal) => {
-        const userBalance = bal/LAMPORTS_PER_SOL;
-        console.log(userBalance);
-        return userBalance;
-      });
-  };
 
 return (
     <>

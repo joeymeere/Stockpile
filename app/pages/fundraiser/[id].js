@@ -5,15 +5,17 @@ import ContributeTwo from "components/Contribute/StepTwo";
 import WithdrawOne from "components/Withdraw/StepOne";
 import React, { useContext, useState } from "react";
 import { Modal } from "@mantine/core";
+import IdSection from '../../components/IdSection';
 import { useStateContext } from "../../components/state";
 import { useStockpile } from "../../components/Context";
+import Register from "../../components/Register";
 
 const Fundraiser = (props) => {
 
   const [opened, setOpened] = useState(false);
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState(null);
-  const { publicKey } = useStockpile();
+  const { publicKey, initialized } = useStockpile();
   const {currentRaised, 
         currentWebsiteLink,
         currentContactLink,
@@ -28,7 +30,7 @@ const Fundraiser = (props) => {
   const pubkey = String(publicKey);
 
   const renderStep = (step) => {
-    if (pubkey != currentBeneficiary) {
+    if (initialized == false) {
         switch (step) {
           case 1:
             return (
@@ -40,19 +42,32 @@ const Fundraiser = (props) => {
             );
 
             case 2:
-              return (<ContributeTwo
-                    setSelectedType={setSelectedType}
+              return (<Register
                     selectedType={selectedType}
                     onContinue={() => setStep((s) => s + 1)}
                     />);
 
             case 3:
-              return (<div></div>);
+              return ((<ContributeTwo/>));
 
             default:
               console.log("Congratulations!")
               return <Congratulation />;
         }
+      } else if (pubkey != currentBeneficiary) {
+        switch (step) {
+          case 1:
+            return (
+              <ContributeOne
+                selectedType={selectedType}
+                setSelectedType={setSelectedType}
+                onContinue={() => setStep((s) => s + 1)}
+              />
+            );
+
+            case 2:
+              return (<ContributeTwo/>);
+            }
       } else {
         switch (step) {
           case 1:
@@ -128,75 +143,14 @@ const Fundraiser = (props) => {
           {String(currentDescription)}
         </p>
 
-        <h2 className="mt-6 pt-4">📈 Top Contributors</h2>
-        <hr className="w-44 pb-3"></hr>
-        <ul>
-          {Array.from(new Array(2)).map((_, i) => (
-            <li key={i} className="flex justify-between items-center mb-3 bg-gray-100 font-semibold max-w-[50%] rounded-full">
-              <h5 className="m-4">yJRXL...5eAwM</h5>
-              <h6 className="m-4">21 SOL</h6>
-            </li>
-          ))}
-        </ul>
-
         <h2 className="mt-6 pt-4">🚀 Related Fundraisers</h2>
         <hr className="w-44 pb-3"></hr>
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-        {Array.from(new Array(3)).map((_, i) => (
-            <FundraiserCard key={i} />
-          ))}
+        <div className="">
+            <IdSection />
         </div>
     
       </DashboardLayout>
     </>
-  );
-};
-
-const FundraiserCard = () => {
-
-  return (
-    <div className="bg-white shadow-md rounded-md py-6 px-5">
-      <img
-        src="/clemson_club.png"
-        alt="Clemson club"
-        height={150}
-        className="rounded-lg w-full mb-3"
-      />
-      <h4>Clemson Blockchain Club</h4>
-      <p className="text-gray-400 py-4">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur,
-        odit.
-      </p>
-
-      <div className="mt-4 flex justify-between items-center">
-        <h5 className="font-bold"><strong>100</strong> SOL raised</h5>
-        <Link
-          href={{
-            pathname: `/fundraiser/1`,
-          }}
-        
-        >
-          <button className="text-white font-bold rounded-full bg-gradient-to-r from-orange-500 to-orange-700">View</button>
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-const Congratulation = () => {
-  const [opened, setOpened] = useState(false);
-  return (
-    <Modal
-    centered
-    opened={opened}
-    onClose={() => setOpened(false)}
-    title="Congratulations!">
-    <div className="flex flex-col justify-center items-center">
-      <h2>Congratulations!</h2>
-      <p>Your Fundraiser was successfully deployed.</p>
-      <button className='font-semibold'>View My Fundraiser</button>
-    </div>
-    </Modal>
   );
 };
 

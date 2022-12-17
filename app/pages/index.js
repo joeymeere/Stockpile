@@ -1,5 +1,5 @@
 import React from 'react';
-import CardSection from '../components/CardSection'
+import CardSection from '../components/IdSection'
 import DashboardLayout from '../components/DashboardLayout'
 
 const Home = () => {

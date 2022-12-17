@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import CardSection from '../components/CardSection'
+import CardSection from '../components/IdSection'
 import FundraiserCard from '../components/Card';
 import { Modal, Group } from "@mantine/core";
 import { useStockpile } from '../components/Context';

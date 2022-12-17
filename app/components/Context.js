@@ -30,8 +30,9 @@ export const StockpileProvider = ({children}) => {
     const [ initialized, setInitialized ] = useState(false);
     const [ transactionFail, setTransactionFail ] = useState(false);
     const [ transactionPending, setTransactionPending ] = useState(false);
+    const [balance, setBalance] = useState(0);
 
-    const { currentFundraiserPubkey, currentAmount } = useStateContext();
+    const { currentFundraiserPubkey, currentCreator, currentAmount } = useStateContext();
 
     const anchorWallet = useAnchorWallet();
     const { connection } = useConnection();
@@ -58,6 +59,10 @@ export const StockpileProvider = ({children}) => {
                 try {
                     //CHECK for user acc
                     //Working
+
+                        let fetchBalance = await connection.getBalance(publicKey)
+                        const userBalance = fetchBalance/LAMPORTS_PER_SOL;
+                        setBalance(userBalance);
 
                         const [userPDA, bump] = await PublicKey.findProgramAddress(
                                 [utf8.encode('fuckItWeBall!'), publicKey.toBuffer()],
@@ -233,6 +238,8 @@ export const StockpileProvider = ({children}) => {
 
                 const { userPDA } = await getProgramDerivedUserAddress();
 
+                const fee = (amount * 0.01) * LAMPORTS_PER_SOL;
+
                 console.log("SENDING TRANSACTION...");
 
                 const userBalance = connection.getBalance(publicKey);
@@ -251,13 +258,20 @@ export const StockpileProvider = ({children}) => {
                                 userAccount: userPDA,
                             })
                     .instruction()
-                    
-                    transaction.add(contributeToFundraiser, SystemProgram.transfer({
+
+                    const sendFunds = SystemProgram.transfer({
                         fromPubkey: anchorWallet.publicKey,
                         toPubkey: currentFundraiserPubkey,
                         lamports: new anchor.BN(amount * LAMPORTS_PER_SOL),
-                        })
-                      );
+                        });
+
+                    const feeTaken = SystemProgram.transfer({
+                            fromPubkey: anchorWallet.publicKey,
+                            toPubkey: new PublicKey('ModqhB3M5Pj8sVQp5ayNHPHuP7XPTsrJXg8zpbhNJNQ'),
+                            lamports: new anchor.BN(fee),
+                        });
+                    
+                    transaction.add(contributeToFundraiser, sendFunds, feeTaken);
     
                     transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
     
@@ -289,7 +303,11 @@ export const StockpileProvider = ({children}) => {
                         setTransactionPending(false);
                      }
                     } else {
-                        const userCreate = await program.methods.createUser(username)
+
+                        console.log("FINDING PROGRAM ADDRESS...");
+                        const { userPDA } = await getProgramDerivedUserAddress(String(currentCreator));
+
+                        const userCreate = await program.methods.createUser(String(currentCreator))
                             .accounts({
                                 userAccount: userPDA,
                                 authority: anchorWallet.publicKey,
@@ -304,13 +322,20 @@ export const StockpileProvider = ({children}) => {
                                  userAccount: userPDA,
                              })
                             .instruction()
+
+                        const sendFunds = SystemProgram.transfer({
+                                fromPubkey: anchorWallet.publicKey,
+                                toPubkey: currentFundraiserPubkey,
+                                lamports: new anchor.BN(amount * LAMPORTS_PER_SOL),
+                                });
+        
+                        const feeTaken = SystemProgram.transfer({
+                                    fromPubkey: anchorWallet.publicKey,
+                                    toPubkey: new PublicKey('ModqhB3M5Pj8sVQp5ayNHPHuP7XPTsrJXg8zpbhNJNQ'),
+                                    lamports: new anchor.BN(fee),
+                                });
     
-                        transaction.add(userCreate, contributeToFundraiser, SystemProgram.transfer({
-                            fromPubkey: anchorWallet.publicKey,
-                            toPubkey: currentFundraiserPubkey,
-                            lamports: amount * LAMPORTS_PER_SOL,
-                          })
-                        );
+                        transaction.add(userCreate, contributeToFundraiser, sendFunds, feeTaken);
     
                         transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
     
@@ -417,7 +442,7 @@ export const StockpileProvider = ({children}) => {
                         return toast.error("Insufficient Balance.");
                     } else {
     
-                    const transaction = new Transaction()
+                    const transaction = new Transaction();
                 
                     if (initialized) {
                         const withdrawFromFundraiser = await program.methods.fundraiserWithdraw(new anchor.BN(amount))
@@ -473,6 +498,7 @@ export const StockpileProvider = ({children}) => {
                 program,
                 connection,
                 publicKey,
+                balance,
                 fundraisers,
                 user,
                 initialized,

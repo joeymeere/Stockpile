@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useStockpile } from "./Context";
-import { Uploader } from './Uploader';
 import { CldUploadWidget } from 'next-cloudinary';
 import { LoadingOverlay } from "@mantine/core";
 import toast from "react-hot-toast";
