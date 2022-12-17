@@ -4,9 +4,10 @@ import * as anchor from '@project-serum/anchor';
 import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, LAMPORTS_PER_SOL, Transaction } from '@solana/web3.js';
 import { IDL } from '../utils/stockpile'
-import { utf8 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 import { useStateContext } from './state';
 import toast from 'react-hot-toast';
+
+const utf8 = require('utf8');
 
 const StockpileContext = createContext();
 

@@ -28,6 +28,7 @@
     "react-parallax": "^3.5.1",
     "react-scroll-parallax": "^3.3.2",
     "react-search-box": "^2.3.0",
+    "utf8": "^3.0.0",
     "yup": "^0.32.11"
   },
   "devDependencies": {
