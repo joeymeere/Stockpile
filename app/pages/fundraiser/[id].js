@@ -50,9 +50,6 @@ const Fundraiser = (props) => {
             case 3:
               return ((<ContributeTwo/>));
 
-            default:
-              console.log("Congratulations!")
-              return <Congratulation />;
         }
       } else if (pubkey != currentBeneficiary) {
         switch (step) {

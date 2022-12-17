@@ -24,6 +24,7 @@ module.exports = {
         "react/prop-types": "off",
         "no-unused-vars": "off",
         "no-undef": "off",
-        "react/no-unescaped-entities": "off"
+        "react/no-unescaped-entities": "off",
+        "no-mixed-spaces-and-tabs": "off",
     }
 }

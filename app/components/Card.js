@@ -47,7 +47,7 @@ export const FundraiserCard = (props) => {
         }
 
     return tempString;
-    };
+    }
 
     return (
 

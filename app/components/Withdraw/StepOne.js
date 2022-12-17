@@ -8,19 +8,11 @@ import { useStateContext } from "../state";
 
 const WithdrawOne = () => {
 
-  const { connection, publicKey, withdraw } = useStockpile();
+  const { withdraw, balance } = useStockpile();
   const { currentAmount, updateCurrentAmount } = useStateContext();
 
   const [visible, setVisible] = useState(false);
   const [opened, setOpened] = useState(false);
-
-  const balance = () => {
-    connection.getBalance(publicKey).then((bal) => {
-        const userBalance = bal/LAMPORTS_PER_SOL;
-        console.log(userBalance);
-        return userBalance;
-      });
-  };
 
 return (
     <>
@@ -39,7 +31,7 @@ return (
       onChange={(e) => updateCurrentAmount(Number(e.target.value))}
       className="enabled:active:border-orange-400"
       required />
-    <p>◎ = {String(balance).slice(0, 4)} SOL</p>
+    <p>◎ = <strong>{String(balance).slice(0, 4)}</strong> SOL</p>
     <button onClick={async () => {setVisible((v) => !v)
       console.log(currentAmount);
           await toast.promise(

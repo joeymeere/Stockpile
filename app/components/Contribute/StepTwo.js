@@ -31,7 +31,7 @@ return (
       onChange={(e) => updateCurrentAmount(Number(e.target.value))}
       className="enabled:active:border-orange-400"
       required />
-    <p>◎ = {String(balance).slice(0, 4)} SOL</p>
+    <p>◎ = <strong>{String(balance).slice(0, 4)}</strong> SOL</p>
     <button onClick={async () => {setVisible((v) => !v)
       console.log(currentAmount);
           await toast.promise(
