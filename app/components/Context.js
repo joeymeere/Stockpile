@@ -16,8 +16,7 @@ export const useStockpile = () => {
     const context = useContext(StockpileContext);
     if (!context) {
         throw new Error("Parent must be wrapped inside StockpileProvider")
-    }
-
+      }
     return context;
 }
 
