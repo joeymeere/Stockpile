@@ -49,6 +49,27 @@ export const StockpileProvider = ({children}) => {
         }, [connection, anchorWallet]
     )
 
+    useEffect(() => {
+
+        const query = async () => {
+            if(program && publicKey) {
+                try {
+                        const fundraisers = await program.account.fundraiser.all(PROGRAM_ID.toString())
+                            setFundraisers(fundraisers)
+
+                        let objectAccounts = fundraisers.filter(fundraiser => fundraiser.account.beneficiary.toString() === publicKey.toString());
+                            setUserAccounts(objectAccounts)
+
+                } catch(err) {
+                    console.log(err)
+
+                }
+            }
+        }
+        query()
+        }, [program, publicKey]
+    )
+
     //Initialize program and query a connected User's fundraisers
     useEffect(() => {
 
@@ -71,11 +92,11 @@ export const StockpileProvider = ({children}) => {
                         const userAcc = await program.account.user.fetch(userPDA.toString())
                             setUser(userAcc);
 
-                        const fundraisers = await program.account.fundraiser.all(PROGRAM_ID.toString())
-                            setFundraisers(fundraisers)
+                //        const fundraisers = await program.account.fundraiser.all(PROGRAM_ID.toString())
+                //            setFundraisers(fundraisers)
 
-                        let objectAccounts = fundraisers.filter(fundraiser => fundraiser.account.beneficiary.toString() === publicKey.toString());
-                            setUserAccounts(objectAccounts)
+                //        let objectAccounts = fundraisers.filter(fundraiser => fundraiser.account.beneficiary.toString() === publicKey.toString());
+                //            setUserAccounts(objectAccounts)
                 /*        
                         let sortedAccounts = fundraisers.sort((a, b) => b.account.raised - a.account.raised);
                             console.log(sortedAccounts);

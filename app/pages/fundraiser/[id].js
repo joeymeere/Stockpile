@@ -4,7 +4,7 @@ import ContributeOne from "components/Contribute/StepOne";
 import ContributeTwo from "components/Contribute/StepTwo";
 import WithdrawOne from "components/Withdraw/StepOne";
 import React, { useContext, useState } from "react";
-import { Modal } from "@mantine/core";
+import { Modal, Progress } from "@mantine/core";
 import IdSection from '../../components/IdSection';
 import { useStateContext } from "../../components/state";
 import { useStockpile } from "../../components/Context";
@@ -25,6 +25,7 @@ const Fundraiser = (props) => {
         currentCreator,
         currentBeneficiary,
         currentGoal,
+        currentContributions,
    } = useStateContext();
 
   const pubkey = String(publicKey);
@@ -91,19 +92,29 @@ const Fundraiser = (props) => {
           <img className="w-7/12 h-full rounded-lg" src={String(currentImageLink)} alt="" />
           <div className="h-full bg-gray-100 rounded-lg">
           <div className="h-full m-16">
-            <h2 className="pb-4 font-normal content-center top-0"><strong>{String(currentRaised)}</strong> SOL raised</h2>
+            <div className="mb-6 content-center top-0">
+              <h2 className="pb-2 font-normal content-center top-0"><strong>{String(currentRaised)}</strong> of <strong>{String(currentGoal / 100)}</strong> SOL raised</h2>
+              <Progress color="orange" value={currentRaised / (currentGoal / 100) * 100} />
+            </div>
             <ul>
               <li className="pb-4">
                 <strong>beneficiary: </strong> {String(currentBeneficiary).slice(0, 4) + "..." + String(currentBeneficiary).slice(40, 45)}
               </li>
               <li className="pb-4">
-                <strong>Total Contributions:</strong> 112
-              </li>
-              <li className="pb-4">
-                <strong>Goal: </strong> {String(currentGoal / 100)} SOL
+                <strong>Total Contributions:</strong> {String(currentContributions)}
               </li>
               <li className="pb-4">
                 <strong>Created By: </strong> {String(currentCreator)}
+              </li>
+              <li className="pb-4">
+                <strong>Website: </strong> <Link href={{
+            
+                  pathname: currentWebsiteLink,
+         
+                }}>{String(currentWebsiteLink)}</Link>
+              </li>
+              <li className="pb-4">
+                <strong>Contact: </strong> {String(currentContactLink)}
               </li>
               <li className="pb-4">
                 <strong>Token Enabled: </strong> No
@@ -117,7 +128,6 @@ const Fundraiser = (props) => {
                 >
                   Contribute
                 </button>
-                <button className="text-white font-semibold rounded-full mr-4 inset-x-0 bottom-0 w-full mt-2">More Info</button>
                 </div>
               ) : (
                 <div className="bottom-0">

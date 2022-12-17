@@ -23,6 +23,7 @@ export const StateProvider = ({ children }) => {
   const [ currentGoal, setCurrentGoal ] = useState(0);
   const [ currentAmount, setCurrentAmount ] = useState(0);
   const [ currentFundraiserPubkey, setCurrentFundraiserPubkey ] = useState('');
+  const [ currentContributions, setCurrentContributions ] = useState(0);
 
   async function updateCurrentBeneficiary(beneficiary) {
     setCurrentBeneficiary(beneficiary)
@@ -68,6 +69,10 @@ export const StateProvider = ({ children }) => {
     setCurrentFundraiserPubkey(fundraiserPubkey)
   }
 
+  async function updateCurrentContributions(contributions) {
+    setCurrentContributions(contributions)
+  }
+
   return (
     <stateContext.Provider 
     value={{
@@ -81,6 +86,7 @@ export const StateProvider = ({ children }) => {
         currentBeneficiary,
         currentGoal,
         currentAmount,
+        currentContributions,
         currentFundraiserPubkey,
         updateCurrentBeneficiary,
         updateCurrentContactLink,
@@ -93,6 +99,7 @@ export const StateProvider = ({ children }) => {
         updateCurrentGoal,
         updateCurrentAmount,
         updateCurrentFundraiserPubkey,
+        updateCurrentContributions,
     }}>
         {children}
     </stateContext.Provider>

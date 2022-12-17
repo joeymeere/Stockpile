@@ -44,8 +44,8 @@ export const CreateForm = (props) => {
         description: Yup.string().required().label("Description").min(20, 'Description should have at least 20 letters'),
         contact: Yup.string().required().label("Contact"),
         website: Yup.string().url().required().label("Website"),
-      //  goal: Yup.number().required().label("Goal").min(1, "Goal must be above 1 SOL.")
-       // image: Yup.mixed().required("A file is required").test("fileSize", "File too large", value => value && value.size <= FILE_SIZE).test("fileFormat", "Unsupported Format", value => value && SUPPORTED_FORMATS.includes(value.type)),
+        goal: Yup.number().required().label("Goal").min(1, "Goal must be above 1 SOL."),
+        image: Yup.string().url().required().label("Image"),
         });
 
       const { register, formState: { errors }, handleSubmit } = useForm({
@@ -53,6 +53,9 @@ export const CreateForm = (props) => {
       });
 
       const submitForm = async () => {
+        if (imageLink == null) {
+            return toast.error("Missing Valid Image.")
+        }
         await onSubmit();
       }
 
