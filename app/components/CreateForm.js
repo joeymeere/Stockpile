@@ -45,7 +45,7 @@ export const CreateForm = (props) => {
         contact: Yup.string().required().label("Contact"),
         website: Yup.string().url().required().label("Website"),
         goal: Yup.number().required().label("Goal").min(1, "Goal must be above 1 SOL."),
-        image: Yup.string().url().required().label("Image"),
+     //   image: Yup.string().url().required().label("Image"),
         });
 
       const { register, formState: { errors }, handleSubmit } = useForm({
