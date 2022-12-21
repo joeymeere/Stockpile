@@ -9,13 +9,15 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ***/
 
+#![feature(derive_default_enum)]
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::native_token::LAMPORTS_PER_SOL;
 use anchor_lang::solana_program::program::invoke;
 use anchor_lang::solana_program::system_instruction;
+use anchor_lang::solana_program::sysvar::clock;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
-declare_id!("8VZTpK9SSLDge4UA14e4BvJVuHkgMxAQ1qfeefPcuKsD");
+declare_id!("STKqgkK72R1sJhV4BTipUcKkMFougtdTuDMr2RVubKr");
 
 #[program]
 pub mod stockpile {
@@ -49,15 +51,14 @@ pub mod stockpile {
         website_link: String,
         contact_link: String,
         goal: String,
+        category: Category,
     ) -> Result<()> {
-        //Define beneficiary and fundraiser PDA
         let beneficiary = &mut ctx.accounts.beneficiary;
         let fundraiser = &mut ctx.accounts.fundraiser;
         let user_account = &mut ctx.accounts.user_account;
 
         let fundraiser_goal = goal.parse::<u64>().unwrap();
 
-        //Define key values and vectors
         fundraiser.raised = 0;
         fundraiser.beneficiary = beneficiary.key();
         fundraiser.creator = user_account.username.to_string();
@@ -69,8 +70,38 @@ pub mod stockpile {
         fundraiser.goal = (fundraiser_goal * 100).to_string();
         fundraiser.contributions = 0;
         fundraiser.bump = *ctx.bumps.get("fundraiser").unwrap();
+        fundraiser.time = Clock::get()?.unix_timestamp;
+        fundraiser.category = category;
 
         user_account.fundraisers += 1;
+
+        Ok(())
+    }
+
+    pub fn update_fundraiser(
+        ctx: Context<UpdateFundraiser>,
+        description: String,
+        website_link: String,
+        contact_link: String,
+    ) -> Result<()> {
+        let beneficiary = &mut ctx.accounts.beneficiary;
+        let fundraiser = &mut ctx.accounts.fundraiser;
+
+        if beneficiary.key() != fundraiser.beneficiary {
+            return Err(Errors::InvalidAuthority.into());
+        }
+
+        if description.len() > 0 {
+            fundraiser.description = description;
+        }
+
+        if contact_link.len() > 0 {
+            fundraiser.contact_link = contact_link;
+        }
+
+        if website_link.len() > 0 {
+            fundraiser.website_link = website_link;
+        }
 
         Ok(())
     }
@@ -102,7 +133,7 @@ pub mod stockpile {
         }
 
         if to.key() != from.beneficiary {
-            return Err(Errors::GoalNotMet.into());
+            return Err(Errors::InvalidBeneficiary.into());
         }
 
         **from.to_account_info().try_borrow_mut_lamports()? -= _amount as u64;
@@ -114,8 +145,6 @@ pub mod stockpile {
 
         Ok(())
     }
-
-    // name: 4 + 256, desc: 4 + 256, contact_link: 4 + 1024, website_link: 4 + 2048, image_link: 4 + 2048, + 32 + 1
 
     #[derive(Accounts)]
     pub struct CreateUser<'info> {
@@ -164,6 +193,23 @@ pub mod stockpile {
         #[account(mut)]
         pub beneficiary: Signer<'info>,
         pub rent: Sysvar<'info, Rent>,
+        pub system_program: Program<'info, System>,
+    }
+
+    #[derive(Accounts)]
+    pub struct UpdateFundraiser<'info> {
+        #[account(mut, 
+        has_one = beneficiary, 
+        seeds = [
+            fundraiser.name.as_ref(), 
+            user_account.key().as_ref(), 
+            beneficiary.key().as_ref()],
+        bump = fundraiser.bump)]
+        pub fundraiser: Account<'info, Fundraiser>,
+        #[account(mut)]
+        pub user_account: Account<'info, User>,
+        #[account(mut)]
+        pub beneficiary: Signer<'info>,
         pub system_program: Program<'info, System>,
     }
 
@@ -219,6 +265,8 @@ pub mod stockpile {
         pub goal: String,
         pub contributions: u8,
         pub bump: u8,
+        pub time: i64,
+        pub category: Category,
     }
 
     #[account]
@@ -234,12 +282,20 @@ pub mod stockpile {
         pub amount: u64,
     }
 
+    #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy)]
+    pub enum Category {
+        Individual,
+        Project,
+    }
+
     #[error_code]
     pub enum Errors {
         #[msg("Fundraiser Name is too long")]
         NameTooLong,
         #[msg("Description is too long")]
         DescriptionTooLong,
+        #[msg("Invalid Authority to Update")]
+        InvalidAuthority,
         #[msg("Attempting to withdraw more than Fundraiser's balance")]
         AmountTooLarge,
         #[msg("Fundraiser's goal has not been met")]

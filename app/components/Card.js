@@ -7,7 +7,7 @@ export const FundraiserCard = (props) => {
 
   const router = useRouter();
 
-  let { pubkey, beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised, goal, contributions } = props;
+  let { pubkey, beneficiary, creator, name, description, imageLink, contactLink, websiteLink, raised, goal, contributions, category } = props;
 
   const {
     updateCurrentBeneficiary,
@@ -21,6 +21,7 @@ export const FundraiserCard = (props) => {
     updateCurrentGoal,
     updateCurrentFundraiserPubkey,
     updateCurrentContributions,
+    updateCurrentCategory,
    } = useStateContext();
 
    function truncateString(str, len, append) {
@@ -80,6 +81,7 @@ export const FundraiserCard = (props) => {
               updateCurrentGoal(goal);
               updateCurrentFundraiserPubkey(pubkey);
               updateCurrentContributions(contributions);
+              updateCurrentCategory(category);
               router.push( `/fundraiser/${String(name)}`)
             }}
             >View</button>

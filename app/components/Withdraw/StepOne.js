@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Group, LoadingOverlay } from "@mantine/core";
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 import { useStockpile } from "../Context";
 import { useStateContext } from "../state";
 
-const WithdrawOne = () => {
+const WithdrawOne = (prop) => {
+
+  const { onWithdraw } = prop;
 
   const { withdraw, balance } = useStockpile();
   const { currentAmount, updateCurrentAmount } = useStateContext();
 
   const [visible, setVisible] = useState(false);
-  const [opened, setOpened] = useState(false);
 
 return (
     <>
@@ -43,7 +43,7 @@ return (
              }
            );
           setVisible(false);
-          setOpened(false);
+          onWithdraw();
         }} 
         className="w-sm">Withdraw</button>
     </Group>

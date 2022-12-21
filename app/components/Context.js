@@ -11,7 +11,7 @@ const utf8 = require('utf8');
 
 const StockpileContext = createContext();
 
-const PROGRAM_ID = new PublicKey("8VZTpK9SSLDge4UA14e4BvJVuHkgMxAQ1qfeefPcuKsD");
+const PROGRAM_ID = new PublicKey("STKqgkK72R1sJhV4BTipUcKkMFougtdTuDMr2RVubKr");
 
 export const useStockpile = () => {
     const context = useContext(StockpileContext);
@@ -30,9 +30,9 @@ export const StockpileProvider = ({children}) => {
     const [ initialized, setInitialized ] = useState(false);
     const [ transactionFail, setTransactionFail ] = useState(false);
     const [ transactionPending, setTransactionPending ] = useState(false);
-    const [balance, setBalance] = useState(0);
+    const [ balance, setBalance ] = useState(0);
 
-    const { currentFundraiserPubkey, currentCreator, currentAmount } = useStateContext();
+    const { currentFundraiserPubkey, currentCreator } = useStateContext();
 
     const anchorWallet = useAnchorWallet();
     const { connection } = useConnection();
@@ -59,10 +59,14 @@ export const StockpileProvider = ({children}) => {
 
                         let objectAccounts = fundraisers.filter(fundraiser => fundraiser.account.beneficiary.toString() === publicKey.toString());
                             setUserAccounts(objectAccounts)
+                        
+                        let trendingSortedAccounts = fundraisers.sort((a, b) => b.account.raised - a.account.raised);
+
+                        let trendingAccountsArray = trendingSortedAccounts.slice(0, 3);
+                            setTrendingAccounts(trendingAccountsArray)
 
                 } catch(err) {
                     console.log(err)
-
                 }
             }
         }
@@ -141,7 +145,7 @@ export const StockpileProvider = ({children}) => {
         return { userPDA, bump };
     };
 
-    const create = async (username, name, description, websiteLink, contactLink, imageLink, goal) => {
+    const create = async (username, name, description, imageLink, websiteLink, contactLink, goal, category) => {
         console.log("CREATING FUNDRAISER...")
 
         if(program && publicKey) {
@@ -156,7 +160,7 @@ export const StockpileProvider = ({children}) => {
                 const transaction = new Transaction()
 
             if (initialized) {
-                const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, websiteLink, contactLink, goal)
+                const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, websiteLink, contactLink, goal, category)
                         .accounts({
                             fundraiser: fundraiserPDA,
                             beneficiary: anchorWallet.publicKey,
@@ -206,7 +210,7 @@ export const StockpileProvider = ({children}) => {
                         })
                          .instruction()
 
-                    const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, contactLink, websiteLink, goal)
+                    const fundraiserCreate = await program.methods.createFundraiser(name, description, imageLink, websiteLink, contactLink, goal, category)
                         .accounts({
                             fundraiser: fundraiserPDA,
                             beneficiary: anchorWallet.publicKey,
@@ -253,6 +257,10 @@ export const StockpileProvider = ({children}) => {
     const contribute = async (amount) => {
 
         console.log("CONTRIBUTING TO FUNDRAISER...")
+
+        if (balance < amount) {
+            return toast.error("Insufficient Balance")
+        }
 
         if(program && publicKey) {
             setTransactionPending(true);
@@ -510,9 +518,65 @@ export const StockpileProvider = ({children}) => {
                     }
                 }
             }
-                     
 
+            const updateFundraiser = async (description, websiteLink, contactLink) => {
 
+                console.log("UPDATING FUNDRAISER...")
+        
+                if(program && publicKey) {
+                    setTransactionPending(true);
+        
+                        const { userPDA } = await getProgramDerivedUserAddress();
+        
+                        console.log("SENDING TRANSACTION...");
+        
+                        const transaction = new Transaction();
+                    
+                        if (initialized) {
+                            const updateFundraiserCredentials = await program.methods.updateFundraiser(description, websiteLink, contactLink)
+                                    .accounts({
+                                        fundraiser: currentFundraiserPubkey,
+                                        userAccount: userPDA,
+                                        beneficiary: anchorWallet.publicKey,
+                                        systemProgram: SystemProgram.programId,
+                                    })
+                            .instruction()
+                            
+                            transaction.add(updateFundraiserCredentials);
+            
+                            transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+            
+                            transaction.feePayer = anchorWallet.publicKey;
+            
+                            console.log(transaction);
+            
+                            const tx = await anchorWallet.signTransaction(transaction)
+                            .catch(err => {
+                                console.log(err);
+                                setTransactionFail(true)
+                                return;
+                            });
+            
+                            if (transactionFail) {
+                                return;
+                            }
+            
+                            const buffer = tx.serialize().toString('base64');
+            
+                            console.log('Sending...');
+            
+                            try {
+                                let txid = await connection.sendEncodedTransaction(buffer);
+                                console.log(`Transaction submitted: https://solana.fm/tx/${txid}?cluster=devnet-qn1`)
+                            } catch (e) {
+                                console.log(JSON.stringify(e))
+                            } finally {
+                                setTransactionPending(false);
+                             }
+                           }
+                        }
+                    }
+                         
     return (
         <StockpileContext.Provider 
             value={{
@@ -530,6 +594,7 @@ export const StockpileProvider = ({children}) => {
                 contribute,
                 updateUser,
                 withdraw,
+                updateFundraiser,
                 transactionPending,
                 setTransactionPending,
             }}

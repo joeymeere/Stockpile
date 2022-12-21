@@ -27,6 +27,7 @@ const IdSection = () => {
                     goal={item.account.goal}
                     pubkey={item.publicKey}
                     contributions={item.account.contributions}
+                    category={item.account.category}
                     />
             )}
             </div>

@@ -6,13 +6,14 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useStockpile } from "../Context";
 import { useStateContext } from "../state";
 
-const ContributeTwo = () => {
+const ContributeTwo = (prop) => {
+
+  const { onContribute } = prop;
 
   const { contribute, balance} = useStockpile();
   const { currentAmount, updateCurrentAmount } = useStateContext();
 
   const [visible, setVisible] = useState(false);
-  const [opened, setOpened] = useState(false);
 
 return (
     <>
@@ -43,7 +44,7 @@ return (
              }
            );
           setVisible(false);
-          setOpened(false);
+          onContribute();
         }} 
         className="w-sm">Contribute</button>
     </Group>

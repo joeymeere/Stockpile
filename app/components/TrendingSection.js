@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import FundraiserCard from "./Card";
 import { useStockpile } from './Context';
 
-export const ExploreSection = () => {
+const TrendingSection = () => {
 
     const { fundraisers } = useStockpile();
 
-    const exploreArray = fundraisers.slice().reverse();
+    let trendingSortedAccounts = fundraisers.sort((a, b) => b.account.raised - a.account.raised);
+
+    let trendingAccountsArray = trendingSortedAccounts.slice(0, 3);
     
     return (
-        <div className="mt-4 mb-4">
+        <div className="mt-4">
             <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-4 w-2/3 h-2/3">
             {
-			    exploreArray.map((item, i) =>
-                    <FundraiserCard 
+			    trendingAccountsArray.map((item, i) =>
+                    <FundraiserCard
                     key={i} 
                     beneficiary={item.account.beneficiary}
                     creator={item.account.creator}
@@ -34,4 +37,4 @@ export const ExploreSection = () => {
     );
 };
 
-export default ExploreSection;
+export default TrendingSection;

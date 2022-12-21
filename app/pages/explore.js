@@ -3,6 +3,8 @@ import ExploreSection from '../components/ExploreSection'
 import DashboardLayout from '../components/DashboardLayout'
 import { useStockpile } from '../components/Context'
 import ReactSearchBox from "react-search-box";
+import TrendingSection from '../components/TrendingSection';
+import TimeSection from '../components/TimeSection';
 
 const Home = () => {
 
@@ -24,9 +26,21 @@ const Home = () => {
           </div>
           <hr className="w-44"></hr>
       </div>
+      <div className="mb-2">
+        <h2 className="font-bold pt-16">📈 Popular Fundraisers</h2>
+        <hr className="w-24 pb-6"></hr>
+        <TrendingSection />
+      </div>
+      <div className="mb-2">
         <h2 className="font-bold pt-16">✨ New Fundraisers</h2>
         <hr className="w-24 pb-6"></hr>
-      <ExploreSection />
+        <TimeSection />
+      </div>
+      <div className="mb-2">
+        <h2 className="font-bold pt-16">🌎 All Fundraisers</h2>
+        <hr className="w-24 pb-6"></hr>
+        <ExploreSection />
+      </div>
     </DashboardLayout>
   )
 }

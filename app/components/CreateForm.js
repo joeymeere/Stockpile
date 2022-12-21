@@ -4,7 +4,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useStockpile } from "./Context";
 import { CldUploadWidget } from 'next-cloudinary';
-import { LoadingOverlay } from "@mantine/core";
+import { createStyles, LoadingOverlay, SegmentedControl, Box, Center } from "@mantine/core";
+import { IconUser, IconBuildingFactory } from '@tabler/icons';
 import toast from "react-hot-toast";
 
 export const CreateForm = (props) => {
@@ -12,6 +13,7 @@ export const CreateForm = (props) => {
     const { program, publicKey, initialized } = useStockpile();
     const [ uploaded, setUploaded ] = useState(false);
     const [visible, setVisible] = useState(false);
+    const [ value, setValue ] = useState('');
     const {
         onSubmit,
         name,
@@ -28,6 +30,8 @@ export const CreateForm = (props) => {
         setUsername,
         goal,
         setGoal,
+        category,
+        setCategory,
       } = props;
 
       const FILE_SIZE = 3000000;
@@ -37,6 +41,28 @@ export const CreateForm = (props) => {
             "image/gif",
             "image/png"
             ];
+
+      const useStyles = createStyles((theme) => ({
+                root: {
+                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.white,
+                  boxShadow: theme.shadows.md,
+                  border: `1px solid ${
+                    theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[1]
+                  }`,
+                },
+              
+                active: {
+                  backgroundImage: theme.fn.gradient({ from: 'red', to: 'orange' }),
+                },
+              
+                control: {
+                  border: '0 !important',
+                },
+              
+                labelActive: {
+                  color: `${theme.white} !important`,
+                },
+        }));
 
       const schema = Yup.object().shape({
         name: Yup.string().required().label("Name").min(4, 'Name should have at least 4 letters'),
@@ -56,7 +82,9 @@ export const CreateForm = (props) => {
         if (imageLink == null) {
             return toast.error("Missing Valid Image.")
         }
-        await onSubmit();
+        let category = value;
+
+        await onSubmit(category);
       }
 
       const formInvalid = async () => {
@@ -156,7 +184,6 @@ export const CreateForm = (props) => {
                                         } else {
                                             console.log(result?.info);
                                             setImage(String(result?.info.url));
-                                            console.log(imageLink);
                                             setUploaded(true)
                                             setVisible(false)
                                             widget.close();
@@ -200,6 +227,41 @@ export const CreateForm = (props) => {
                         <p className="text-red-500"> {errors.goal?.message} </p>
                 </label>
         </label>
+
+        <label className="font-semibold mx-4 mb-2">
+            Category
+            <br></br>
+            <label className="text-slate-400 font-light">
+                Select what type your fundraiser is
+                <br></br>
+                <SegmentedControl
+                    radius="xl"
+                    size="lg"
+                    transitionDuration={500}
+                    transitionTimingFunction="linear"
+                    value={value}
+                    onChange={setValue}
+                    color="orange"
+                    data={[
+                        { label: (
+                            <Center>
+                              <IconUser size={16} />
+                              <Box ml={10}>Individual</Box>
+                            </Center>
+                          ),
+                          value: 'individual' },
+                        { label: (
+                            <Center>
+                              <IconBuildingFactory size={16} />
+                              <Box ml={10}>Project</Box>
+                            </Center>
+                          ),
+                          value: 'project' },
+                    ]}
+                />
+            </label>
+        </label>
+        <br></br>
 
         <label className="font-semibold">
             Website

@@ -3,6 +3,7 @@ import { useStockpile } from "../components/Context";
 import DashboardLayout from "../components/DashboardLayout";
 import toast from "react-hot-toast";
 import { CreateForm } from "../components/CreateForm";
+import { validateHeaderValue } from "http";
 
 
 const FILE_SIZE = 3000000;
@@ -23,6 +24,7 @@ const Create = () => {
     const [username, setUsername] = useState("");
     const [imageLink, setImage] = useState("");
     const [goal, setGoal] = useState("");
+    const [category, setCategory] = useState("");
 
     return(
     <>
@@ -43,16 +45,25 @@ const Create = () => {
         setGoal={setGoal}
         imageLink={imageLink}
         setImage={setImage}
-        onSubmit={async () => {
-            console.log(username, name, description, websiteLink, contactLink, imageLink, goal)
+        category={category}
+        setCategory={setCategory}
+        onSubmit={async (category) => {
+          let key = category;
+          let val = {};
+      
+          let formattedCategory = {}
+      
+          formattedCategory[key] = val;
+
             await toast.promise(
-                create(username, name, description, websiteLink, contactLink, imageLink, goal),
+                create(username, name, description, imageLink, websiteLink, contactLink, goal, formattedCategory),
                  {
                    loading: 'Submitting...',
                    success: <b>Fundraiser Successfully Created!</b>,
                    error: <b>Transaction Failed.</b>,
                  }
                );
+            window.location.reload();
         }}
         />
         </div>

@@ -35,7 +35,22 @@ export type Stockpile = {
         { name: "imageLink"; type: "string" },
         { name: "websiteLink"; type: "string" },
         { name: "contactLink"; type: "string" },
-        { name: "goal"; type: "string" }
+        { name: "goal"; type: "string" },
+        { name: "category"; type: { defined: "Category" } }
+      ];
+    },
+    {
+      name: "updateFundraiser";
+      accounts: [
+        { name: "fundraiser"; isMut: true; isSigner: false },
+        { name: "userAccount"; isMut: true; isSigner: false },
+        { name: "beneficiary"; isMut: true; isSigner: true },
+        { name: "systemProgram"; isMut: false; isSigner: false }
+      ];
+      args: [
+        { name: "description"; type: "string" },
+        { name: "websiteLink"; type: "string" },
+        { name: "contactLink"; type: "string" }
       ];
     },
     {
@@ -89,7 +104,9 @@ export type Stockpile = {
           { name: "raised"; type: "u64" },
           { name: "goal"; type: "string" },
           { name: "contributions"; type: "u8" },
-          { name: "bump"; type: "u8" }
+          { name: "bump"; type: "u8" },
+          { name: "time"; type: "i64" },
+          { name: "category"; type: { defined: "Category" } }
         ];
       };
     },
@@ -115,21 +132,35 @@ export type Stockpile = {
       };
     }
   ];
+  types: [
+    {
+      name: "Category";
+      type: {
+        kind: "enum";
+        variants: [{ name: "Individual" }, { name: "Project" }];
+      };
+    }
+  ];
   errors: [
     { code: 6000; name: "NameTooLong"; msg: "Fundraiser Name is too long" },
     { code: 6001; name: "DescriptionTooLong"; msg: "Description is too long" },
     {
       code: 6002;
+      name: "InvalidAuthority";
+      msg: "Invalid Authority to Update";
+    },
+    {
+      code: 6003;
       name: "AmountTooLarge";
       msg: "Attempting to withdraw more than Fundraiser's balance";
     },
     {
-      code: 6003;
+      code: 6004;
       name: "GoalNotMet";
       msg: "Fundraiser's goal has not been met";
     },
     {
-      code: 6004;
+      code: 6005;
       name: "InvalidBeneficiary";
       msg: "Invalid Beneficiary provided";
     }
@@ -173,6 +204,21 @@ export const IDL: Stockpile = {
         { name: "websiteLink", type: "string" },
         { name: "contactLink", type: "string" },
         { name: "goal", type: "string" },
+        { name: "category", type: { defined: "Category" } },
+      ],
+    },
+    {
+      name: "updateFundraiser",
+      accounts: [
+        { name: "fundraiser", isMut: true, isSigner: false },
+        { name: "userAccount", isMut: true, isSigner: false },
+        { name: "beneficiary", isMut: true, isSigner: true },
+        { name: "systemProgram", isMut: false, isSigner: false },
+      ],
+      args: [
+        { name: "description", type: "string" },
+        { name: "websiteLink", type: "string" },
+        { name: "contactLink", type: "string" },
       ],
     },
     {
@@ -227,6 +273,8 @@ export const IDL: Stockpile = {
           { name: "goal", type: "string" },
           { name: "contributions", type: "u8" },
           { name: "bump", type: "u8" },
+          { name: "time", type: "i64" },
+          { name: "category", type: { defined: "Category" } },
         ],
       },
     },
@@ -252,21 +300,35 @@ export const IDL: Stockpile = {
       },
     },
   ],
+  types: [
+    {
+      name: "Category",
+      type: {
+        kind: "enum",
+        variants: [{ name: "Individual" }, { name: "Project" }],
+      },
+    },
+  ],
   errors: [
     { code: 6000, name: "NameTooLong", msg: "Fundraiser Name is too long" },
     { code: 6001, name: "DescriptionTooLong", msg: "Description is too long" },
     {
       code: 6002,
+      name: "InvalidAuthority",
+      msg: "Invalid Authority to Update",
+    },
+    {
+      code: 6003,
       name: "AmountTooLarge",
       msg: "Attempting to withdraw more than Fundraiser's balance",
     },
     {
-      code: 6003,
+      code: 6004,
       name: "GoalNotMet",
       msg: "Fundraiser's goal has not been met",
     },
     {
-      code: 6004,
+      code: 6005,
       name: "InvalidBeneficiary",
       msg: "Invalid Beneficiary provided",
     },

@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import FundraiserCard from "./Card";
 import { useStockpile } from './Context';
 
-export const ExploreSection = () => {
+export const TimeSection = () => {
 
     const { fundraisers } = useStockpile();
 
-    const exploreArray = fundraisers.slice().reverse();
+    let timeSortedAccounts = fundraisers.sort((a, b) => b.account.time - a.account.time);
+
+    let timeAccountsArray = timeSortedAccounts.slice(0, 3);
     
     return (
-        <div className="mt-4 mb-4">
+        <div className="mt-4">
             <div className="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-4 w-2/3 h-2/3">
             {
-			    exploreArray.map((item, i) =>
+			    timeAccountsArray.map((item, i) =>
                     <FundraiserCard 
                     key={i} 
                     beneficiary={item.account.beneficiary}
@@ -34,4 +36,4 @@ export const ExploreSection = () => {
     );
 };
 
-export default ExploreSection;
+export default TimeSection;
