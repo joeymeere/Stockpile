@@ -6,6 +6,7 @@ import { SolanaProviders } from '../components/Providers';
 import { StockpileProvider } from "../components/Context";
 import { StateProvider } from '../components/state';
 import { Toaster } from 'react-hot-toast';
+import { MantineProvider } from '@mantine/core';
 
 function MyApp({ Component, pageProps }) {
   return (
@@ -20,6 +21,14 @@ function MyApp({ Component, pageProps }) {
       <SolanaProviders>
         <StateProvider>
           <StockpileProvider>
+          <MantineProvider
+          withGlobalStyles
+          withNormalizeCSS
+          theme={{
+            primaryColor: 'orange',
+            colorScheme: 'light',
+          }}
+        >
             <Parallax
                   blur={5}
                   bgImage='/BlurObject.png'
@@ -47,6 +56,7 @@ function MyApp({ Component, pageProps }) {
                       />  
                   <Component {...pageProps} />
              </Parallax>
+             </MantineProvider>
           </StockpileProvider>
         </StateProvider>
       </SolanaProviders>
