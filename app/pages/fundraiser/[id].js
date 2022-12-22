@@ -103,6 +103,8 @@ const Fundraiser = (props) => {
       <Modal
       centered={true}
       radius="lg"
+      closeOnClickOutside={false}
+      closeOnEscape={true}
       opened={opened}
       onClose={() => {setOpened(false); setStep((s) => s = 1)}}>
       {renderStep(step)}
@@ -110,6 +112,8 @@ const Fundraiser = (props) => {
       <Modal
       centered={true}
       radius="lg"
+      closeOnClickOutside={false}
+      closeOnEscape={true}
       opened={up}
       onClose={() => {setUp(false)}}>
             <>
