@@ -18,7 +18,6 @@ return (
           name="username"
           type="text"
           placeholder="Enter a username..."
-          value={currentCreator}
           onChange={(e) => updateCurrentCreator(e.target.value)}
           className="enabled:active:border-orange-400"
           required />
